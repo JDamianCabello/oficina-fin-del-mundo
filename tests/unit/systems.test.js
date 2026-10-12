@@ -340,3 +340,36 @@ test('simulación: 1000 ticks sin NaN ni negativos', () => {
   for (const v of Object.values(s.resources)) assert.ok(Number.isFinite(v) && v >= 0);
   assert.ok(s.resources.paperwork > 0);
 });
+
+test('bucle: los ticks largos de una pestaña en segundo plano se simulan, las suspensiones van a offline', async () => {
+  const { createGameLoop, GAP_THRESHOLD_SECONDS } = await import('../../js/core/gameLoop.js');
+  const steps = [];
+  const gaps = [];
+  let perf = 0;
+  let wall = 1_000_000;
+  const realPerf = globalThis.performance;
+  const realNow = Date.now;
+  const realSetInterval = globalThis.setInterval;
+  let tick = null;
+  globalThis.performance = { now: () => perf };
+  Date.now = () => wall;
+  globalThis.setInterval = (fn) => { tick = fn; return 1; };
+  try {
+    const loop = createGameLoop({ onStep: (dt) => steps.push(dt), onGap: (s) => gaps.push(s) });
+    loop.start();
+    perf += 60_000; wall += 60_000; tick();
+    assert.equal(gaps.length, 0);
+    assert.ok(approx(steps.reduce((a, b) => a + b, 0), 60));
+    assert.ok(steps.every((d) => d <= 1));
+    wall += (GAP_THRESHOLD_SECONDS + 500) * 1000; // suspensión: el reloj monótono no avanza
+    tick();
+    assert.equal(gaps.length, 1);
+    wall -= 3_600_000; perf += 100; tick(); // reloj hacia atrás: se ignora el de pared
+    assert.equal(gaps.length, 1);
+    loop.stop();
+  } finally {
+    globalThis.performance = realPerf;
+    Date.now = realNow;
+    globalThis.setInterval = realSetInterval;
+  }
+});

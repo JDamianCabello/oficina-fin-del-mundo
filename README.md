@@ -75,7 +75,7 @@ dirección o puerto son partidas distintas.
 Requisitos: Node.js 18+ (probado con Node 22). No hay dependencias que instalar.
 
 ```bash
-npm test            # 69 pruebas unitarias (node --test), incluida una regresión de balance
+npm test            # 70 pruebas unitarias (node --test), incluida una regresión de balance
 npm run test:e2e    # prueba de humo en Chromium real con Playwright (33 comprobaciones)
 npm run balance     # simulación de balance: node tests/tools/balance.mjs [horas] [informe-min] [estrategia]
 npm run lint        # ESLint con reglas básicas (eslint.config.js)

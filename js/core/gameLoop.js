@@ -18,7 +18,10 @@ import { checkAchievements, PERIODIC_TOPICS } from '../systems/achievements.js';
 
 export const TICK_MS = 100;
 export const MAX_STEP_SECONDS = 1; // un tick nunca simula más de 1 s
-export const GAP_THRESHOLD_SECONDS = 30; // huecos mayores → offline
+// Huecos mayores → offline. Chrome despierta las pestañas en segundo plano
+// como mínimo una vez por minuto («intensive throttling»); esos ticks de ~60 s
+// se simulan con normalidad, y solo una suspensión real cuenta como offline.
+export const GAP_THRESHOLD_SECONDS = 120;
 
 /**
  * Avanza la simulación `dt` segundos: producción, contadores, efectos
