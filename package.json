@@ -1,0 +1,15 @@
+{
+  "name": "oficina-fin-del-mundo",
+  "version": "1.0.0",
+  "description": "La Oficina del Fin del Mundo — juego incremental web en JavaScript vanilla",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "node --test \"tests/unit/*.test.js\"",
+    "test:e2e": "node tests/e2e/smoke.mjs",
+    "balance": "node tests/tools/balance.mjs",
+    "lint": "eslint js tests"
+  },
+  "license": "UNLICENSED"
+}
