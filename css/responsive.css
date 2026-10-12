@@ -1,0 +1,173 @@
+/* Adaptación a tablet y móvil. */
+
+/* Tablet / portátil pequeño: dos columnas (escena arriba a todo el ancho). */
+@media (max-width: 1180px) {
+  .layout {
+    grid-template-columns: minmax(280px, 1fr) minmax(300px, 1fr);
+    grid-template-areas:
+      'scene scene'
+      'left right';
+  }
+
+  .scene-panel { grid-area: scene; }
+  .panel--left { grid-area: left; }
+  .panel--right { grid-area: right; }
+
+  .scene {
+    max-height: 52vh;
+    max-width: calc(52vh * 16 / 9);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .panel {
+    position: static;
+    max-height: none;
+  }
+}
+
+/* Móvil: una columna. Las secciones se convierten en pestañas y solo se
+   muestra la vista activa (incluidos los edificios). */
+@media (max-width: 760px) {
+  :root {
+    --topbar-h: 56px;
+  }
+
+  .topbar {
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+  }
+
+  /* Barra compacta: el logo y el estado de guardado no caben en una fila. */
+  .logo,
+  .save-status {
+    display: none;
+  }
+
+  .topbar__actions .btn--icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .resources {
+    gap: var(--space-1);
+  }
+
+  .resource {
+    flex: 1;
+    padding: 2px var(--space-2);
+  }
+
+  .resource__icon {
+    font-size: 1.1rem;
+  }
+
+  .resource__value {
+    font-size: 1.35rem;
+  }
+
+  .view,
+  .panel {
+    scroll-margin-top: calc(var(--topbar-h) + var(--tabs-h) + var(--space-2));
+  }
+
+  .department__level {
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+
+  .department__name {
+    font-size: 1.2rem;
+  }
+
+  .tab {
+    padding: 0 var(--space-2);
+    min-height: var(--tap);
+  }
+
+  .tab__label {
+    font-size: 1rem;
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'scene'
+      'left'
+      'right';
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4) var(--space-5);
+  }
+
+  .scene {
+    max-height: none;
+    max-width: none;
+  }
+
+  .scene__hint {
+    font-size: 0.95rem;
+  }
+
+  .btn--stamp {
+    width: 100%;
+    min-height: 52px;
+    font-size: 1.4rem;
+  }
+
+  .panel {
+    padding: var(--space-2);
+  }
+
+  /* Solo la vista activa */
+  .panel--left {
+    display: none;
+  }
+
+  body[data-view='buildings'] .panel--left {
+    display: block;
+  }
+
+  body[data-view='buildings'] .panel--right {
+    display: none;
+  }
+
+
+  .prestige__numbers {
+    grid-template-columns: 1fr;
+  }
+
+  .prestige__lists {
+    grid-template-columns: 1fr;
+  }
+
+  .toasts {
+    top: auto;
+    bottom: var(--space-2);
+    left: var(--space-2);
+    right: var(--space-2);
+    transform: none;
+    width: auto;
+  }
+
+  .toast {
+    padding: var(--space-1) var(--space-2);
+  }
+
+  .toast__text {
+    display: none;
+  }
+
+  .ticker {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .resource__rate {
+    display: none;
+  }
+
+  .tab__icon {
+    display: none;
+  }
+}

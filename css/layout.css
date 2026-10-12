@@ -1,0 +1,150 @@
+/* Estructura general: barra superior, pestañas y tres columnas. */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: var(--topbar-h);
+  padding: var(--space-2) var(--space-4);
+  background: linear-gradient(180deg, #1d2135, var(--color-panel));
+  border-bottom: var(--pixel) solid var(--color-border);
+  box-shadow: 0 var(--pixel) 0 var(--color-shadow), 0 6px 18px #0008;
+}
+
+.resources {
+  display: flex;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 0;
+}
+
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.tabs {
+  position: sticky;
+  top: var(--topbar-h);
+  z-index: 40;
+  background: var(--color-bg);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.tabs__list {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs__list::-webkit-scrollbar {
+  display: none;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr) minmax(320px, 420px);
+  gap: var(--space-4);
+  padding: var(--space-4);
+  align-items: start;
+}
+
+.panel {
+  position: sticky;
+  top: calc(var(--topbar-h) + var(--tabs-h) + var(--space-3));
+  max-height: calc(100vh - var(--topbar-h) - var(--tabs-h) - var(--space-5));
+  overflow-y: auto;
+  padding: var(--space-3);
+  background: var(--color-panel);
+  box-shadow: var(--pixel-border);
+  margin: var(--pixel);
+}
+
+.panel--right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.scene-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* Vistas: en escritorio la columna izquierda muestra siempre los edificios y
+   la derecha solo la vista activa. */
+.panel--right .view {
+  display: none;
+}
+
+body[data-right-view='upgrades'] #view-upgrades,
+body[data-right-view='talents'] #view-talents,
+body[data-right-view='achievements'] #view-achievements,
+body[data-right-view='missions'] #view-missions,
+body[data-right-view='prestige'] #view-prestige,
+body[data-right-view='stats'] #view-stats {
+  display: block;
+}
+
+.panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.panel__title {
+  font-size: var(--fs-xl);
+  color: var(--color-cyan);
+  text-shadow: var(--glow-cyan);
+  text-transform: uppercase;
+}
+
+.panel__title:focus {
+  outline: none;
+}
+
+.panel__subtitle {
+  color: var(--color-text-2);
+  font-size: var(--fs-sm);
+}
+
+.panel__subheading {
+  margin: var(--space-4) 0 var(--space-2);
+  font-size: var(--fs-lg);
+  color: var(--color-magenta);
+  text-shadow: var(--glow-magenta);
+  text-transform: uppercase;
+}
+
+.fx-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 80;
+}
+
+.toasts {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: var(--space-4);
+  z-index: 90;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-2);
+  width: min(360px, calc(100vw - 2 * var(--space-4)));
+  pointer-events: none;
+}

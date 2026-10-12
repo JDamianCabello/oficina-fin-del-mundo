@@ -240,7 +240,7 @@ export function getGlobalMultiplier(state, mods = getModifiers(state), { forceId
 
 /** Multiplicador propio de un edificio (sin el global). */
 export function getBuildingMultiplier(state, id, mods = getModifiers(state)) {
-  let mult = (mods.building[id] ?? 1) * mods.allBuildings;
+  const mult = (mods.building[id] ?? 1) * mods.allBuildings;
   let synergy = 0;
   for (const s of mods.synergies) {
     if (s.target !== id) continue;

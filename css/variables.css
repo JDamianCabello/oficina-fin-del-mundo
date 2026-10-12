@@ -1,0 +1,70 @@
+/* Paleta y medidas globales. Toda la interfaz usa estas variables. */
+
+@font-face {
+  font-family: 'Kenney Pixel';
+  src: url('../assets/fonts/kenney-pixel.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Kenney Mini';
+  src: url('../assets/fonts/kenney-mini.ttf') format('truetype');
+  font-display: swap;
+}
+
+:root {
+  /* Paleta principal (documento de diseño) */
+  --color-bg: #10111B;
+  --color-panel: #191C2C;
+  --color-panel-2: #252A40;
+  --color-cyan: #32F5C8;
+  --color-magenta: #FF4FD8;
+  --color-yellow: #FFD166;
+  --color-text: #F4F4FA;
+  --color-text-2: #A9A9BC;
+
+  /* Derivados */
+  --color-panel-3: #30365200;
+  --color-border: #3A4163;
+  --color-border-strong: #545d8a;
+  --color-danger: #FF6B6B;
+  --color-ok: var(--color-cyan);
+  --color-locked: #5f6380;
+  --color-shadow: #07070d;
+  --color-cyan-dim: #32f5c833;
+  --color-magenta-dim: #ff4fd833;
+  --color-yellow-dim: #ffd16633;
+
+  /* Brillos de neón */
+  --glow-cyan: 0 0 6px #32f5c899, 0 0 14px #32f5c844;
+  --glow-magenta: 0 0 6px #ff4fd899, 0 0 14px #ff4fd844;
+  --glow-yellow: 0 0 6px #ffd16699, 0 0 14px #ffd16644;
+
+  /* Tipografía */
+  --font-pixel: 'Kenney Pixel', 'Courier New', monospace;
+  --font-mini: 'Kenney Mini', 'Courier New', monospace;
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.85rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.6rem;
+
+  /* Espaciado y bordes */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --radius: 2px;
+  --pixel: 3px;
+  --tap: 44px;
+
+  /* Borde pixelado reutilizable (doble borde escalonado) */
+  --pixel-border: 0 0 0 var(--pixel) var(--color-border), 0 var(--pixel) 0 var(--pixel) var(--color-shadow);
+  --pixel-border-strong: 0 0 0 var(--pixel) var(--color-border-strong), 0 var(--pixel) 0 var(--pixel) var(--color-shadow);
+
+  --topbar-h: 64px;
+  --tabs-h: 48px;
+  --transition: 120ms steps(3, end);
+}
