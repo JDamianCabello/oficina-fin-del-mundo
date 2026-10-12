@@ -85,6 +85,12 @@
   text-shadow: var(--glow-magenta);
 }
 
+.resource--shares .resource__value,
+.resource--shares .resource__icon {
+  color: var(--color-yellow);
+  text-shadow: var(--glow-yellow);
+}
+
 .resource--influence .resource__icon {
   color: var(--color-magenta);
   filter: drop-shadow(0 0 4px #ff4fd899);
@@ -256,6 +262,10 @@
   bottom: -6px;
   height: 3px;
   background: var(--color-cyan);
+}
+
+.tab__short {
+  display: none;
 }
 
 .tab__badge {

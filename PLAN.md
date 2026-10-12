@@ -12,12 +12,12 @@ cerró ejecutando las pruebas disponibles (`npm test`, `npm run test:e2e`,
 | 2. Núcleo incremental | Clics, recursos, producción por segundo con delta de tiempo, 13 edificios configurables (5 iniciales + 8 avanzados), compras ×1/×10/máximo, formateador numérico | ✅ Hecha |
 | 3. Interfaz | Barra superior, tres paneles, tarjetas, 7 pestañas con estados activos, tema oscuro de neón con variables CSS, diseño adaptable (escritorio, tablet, móvil) | ✅ Hecha |
 | 4. Arte y animaciones | Descarga verificada de 5 packs de Kenney + 1 de Reaktori (CC0), registro de licencias, sistema de spritesheets configurable, pixel art propio, escena animada en canvas, partículas Canvas 2D, animaciones CSS | ✅ Hecha |
-| 5. Mejoras y departamentos | 56 mejoras con requisitos y efectos reales (clic, edificios, globales, especiales, sinergias, final), 5 departamentos con mecánicas nuevas, 24 misiones | ✅ Hecha |
-| 6. Logros | 35 logros (3 secretos) con comprobación por temas, recompensas únicas, notificaciones, estadísticas | ✅ Hecha |
+| 5. Mejoras y departamentos | 61 mejoras con requisitos y efectos reales (clic, edificios, globales, especiales, sinergias, final), 5 departamentos con mecánicas nuevas, 24 misiones | ✅ Hecha |
+| 6. Logros | 39 logros (3 secretos) con comprobación por temas, recompensas únicas, notificaciones, estadísticas | ✅ Hecha |
 | 7. Talentos | 4 ramas, 24 nodos (4 pares excluyentes), costes en Influencia, requisitos, reasignación gratuita al inicio de ciclo | ✅ Hecha |
 | 8. Prestigio | Ascenso con vista previa, confirmación explícita, reinicio atómico, conservación de lo permanente, bonus derivado (sin duplicados) | ✅ Hecha |
 | 9. Guardado | localStorage versionado, autoguardado 10 s + al ocultar/cerrar, copia de seguridad, recuperación de partidas dañadas, exportar/importar JSON validado, migración v1→v2, progreso offline (8 h base) | ✅ Hecha |
-| 10. Balance y acabado | 7 eventos aleatorios con elecciones, formularios dorados, 3 secretos, ajustes de accesibilidad, simulación de balance con 4 estrategias, pruebas, documentación | ✅ Hecha |
+| 10. Balance y acabado | 9 eventos aleatorios con elecciones, formularios dorados, 3 secretos, ajustes de accesibilidad, simulación de balance con 4 estrategias, pruebas, documentación | ✅ Hecha |
 
 ## Decisiones de diseño relevantes
 
@@ -61,27 +61,50 @@ que un jugador humano tardará algo más (estimación: ×1,3–×2).
 |---|---|---|---|---|
 | Primer edificio | 29 s | 12 s | 2 min 31 s | < 2 min |
 | Primera mejora relevante (impresoras ×2) | 1 min 40 s | 1 min 7 s | 6 min 51 s | 2–5 min |
-| Automatización (Ratón con ansiedad) | 14 min 38 s | 12 min 8 s | 37 min 46 s | 10–20 min |
+| Automatización (Ratón con ansiedad) | 11 min 37 s | 8 min 49 s | 34 min 19 s | 10–20 min |
 | Nivel 2 | 3 min 19 s | 1 min 38 s | 10 min 17 s | — |
-| Nivel 3 («primer departamento adicional») | 16 min 4 s | 13 min 40 s | 24 min 23 s | 20–40 min |
-| Nivel 4 | 53 min 40 s | 48 min 2 s | 1 h 3 min | — |
-| Primer ascenso | 1 h 6 min (+10) | 58 min 39 s (+10) | 1 h 22 min (+10) | 45–90 min |
-| Nivel 5 | 1 h 40 min | 1 h 32 min | 1 h 53 min | — |
-| Formulario 404-B (final) | 5 h 24 min | 5 h 27 min | > 6 h | varias horas |
+| Nivel 3 («primer departamento adicional») | 12 min 36 s | 10 min 46 s | 22 min 28 s | 20–40 min |
+| Nivel 4 | 49 min 49 s | 44 min 50 s | 1 h 1 min | — |
+| Primer ascenso | 1 h 2 min (+11) | 56 min 6 s (+10) | 1 h 22 min (+10) | 45–90 min |
+| Nivel 5 | 1 h 28 min | 1 h 30 min | 1 h 53 min | — |
+| Formulario 404-B (final) y nivel 6 | 4 h 40 min | 4 h 27 min | > 6 h | varias horas |
+| Primera fusión (2.ª capa) | 4 h 40 min (+3 ◆) | 4 h 27 min (+2 ◆) | > 6 h | — |
 
-Todas las estrategias son viables y llegan al primer ascenso en el rango
+(Simulación tras la sesión 2; los tiempos cambian ligeramente respecto a la
+primera versión porque hay más eventos y mejoras.) Todas las estrategias son viables y llegan al primer ascenso en el rango
 previsto; la pasiva es más lenta al principio, pero el talento «Que nadie toque
 nada» (×2 sin clics) y el progreso offline la compensan. `tests/unit/balance.test.js`
 fija estos rangos como prueba de regresión.
 
-## Pendiente / ideas para siguientes sesiones
+## Fase 11: correcciones y segunda capa (sesión 2)
 
-- Segunda capa de prestigio (la arquitectura lo permite: `prestige.js` está
-  aislado y los departamentos se definen por datos).
-- Más eventos y mejoras de los edificios cósmicos (niveles 25/50).
-- Tras ~3 h de partida optimizada los números crecen muy deprisa (escala Sx/Sp).
-  Es habitual en el género, pero una segunda capa de prestigio daría más metas.
-- Biblioteca de números grandes: no es necesaria (el máximo realista en 6 h es
-  ~1e22 y el formato admite hasta 1e308, saturando en lugar de dar Infinity).
+| Tarea | Estado |
+|---|---|
+| Barra de pestañas móvil: fija abajo, las 7 secciones visibles sin desplazamiento; logo e indicador de guardado visibles | ✅ |
+| Texto de la escena nítido: el canvas se dibuja a la resolución real de la pantalla (factor 1–6) manteniendo los sprites sin suavizado | ✅ |
+| Audio: se desbloquea en la primera interacción, así suenan también los avisos lanzados por temporizador | ✅ |
+| Segunda capa de prestigio: **Fusión multiversal** → Acciones (◆), nivel 6 «Consejo de Administración», 8 ventajas permanentes, migración de partidas v2→v3 | ✅ |
+| Más contenido: 5 mejoras cósmicas de nivel 25, 2 eventos nuevos, 4 logros nuevos | ✅ |
+| Pruebas: 80 unitarias (10 nuevas de fusión/Consejo/migración) y 37 en navegador | ✅ |
+
+### Balance de la segunda capa (simulación equilibrada, 12 h)
+
+`Acciones = floor(cbrt(Influencia de la fusión / 20000))`, +50 % de producción por
+acción ganada. Con un divisor de 1000 la primera fusión daba 8 acciones y el
+Consejo completo se compraba en 25 minutos; con 20000 y costes 1–13:
+
+| Hito | Tiempo |
+|---|---|
+| Formulario 404-B / nivel 6 | ~4 h 40 min |
+| Fusión n.º 1 | ~4 h 40 min (+3 ◆) |
+| Fusión n.º 2 | ~5 h 02 min (+3 ◆) |
+| Fusión n.º 3 | ~5 h 55 min (+6 ◆) |
+| Consejo completo (42 ◆ en total) | > 12 h |
+
+## Ideas para siguientes sesiones
+
+- Tercera capa o desafíos (ciclos con reglas especiales).
+- Biblioteca de números grandes: no es necesaria (el máximo realista en 12 h es
+  ~1e25 y el formato admite hasta 1e308, saturando en lugar de dar Infinity).
 - Sonido con archivos (opcional; ahora es sintetizado).
 - Traducciones (todo el texto está en los archivos de datos y en las vistas).

@@ -5,7 +5,7 @@
 import { BUILDING_IDS } from '../config/buildings.data.js';
 import { EVENT_TIMING, GOLDEN_TIMING } from '../config/randomEvents.data.js';
 
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 export function createDefaultSettings() {
   return {
@@ -43,10 +43,13 @@ export function createInitialState(now = Date.now()) {
       lifetimePaperwork: 0, // producido en toda la partida
       influence: 0, // Influencia disponible
       totalInfluenceEarned: 0, // Influencia ganada en total (da el bonus de prestigio)
+      shares: 0, // Acciones disponibles (segunda capa)
+      totalSharesEarned: 0, // Acciones ganadas en total (dan bonus permanente)
     },
     buildings: createEmptyBuildings(),
     upgrades: [], // ids comprados en este ciclo
-    talents: [], // ids permanentes
+    talents: [], // ids permanentes (se pierden al fusionarse)
+    board: [], // ventajas del Consejo (permanentes)
     achievements: {}, // { id: marcaTemporal }
     secrets: [], // ids de secretos descubiertos
     unlockedDepartments: ['basement'],
@@ -56,6 +59,7 @@ export function createInitialState(now = Date.now()) {
       totalClicks: 0,
       manualPaperwork: 0,
       totalPrestiges: 0,
+      totalMergers: 0,
       playTimeSeconds: 0,
       cyclePlayTime: 0,
       goldenFormsClicked: 0,

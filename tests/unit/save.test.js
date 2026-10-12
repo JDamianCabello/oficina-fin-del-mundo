@@ -132,7 +132,7 @@ test('importación saneada: negativos, NaN, ids desconocidos y estructuras arbit
   assert.ok(Number.isFinite(getPps(s)));
 });
 
-test('migración v1 → v2 desde el esquema del documento de diseño', () => {
+test('migración v1 → v3 desde el esquema del documento de diseño', () => {
   const v1 = {
     version: 1,
     resources: { paperwork: 500, lifetimePaperwork: 9000, influence: 0, totalInfluenceEarned: 0 },
@@ -146,7 +146,9 @@ test('migración v1 → v2 desde el esquema del documento de diseño', () => {
     lastSavedAt: 1_700_000_000_000,
   };
   const migrated = migrate(v1);
-  assert.equal(migrated.version, 2);
+  assert.equal(migrated.version, 3);
+  assert.equal(migrated.resources.shares, 0);
+  assert.deepEqual(migrated.board, []);
   assert.equal(migrated.resources.cycleTotal, 9000);
   assert.deepEqual(migrated.achievements, { paper1k: 1_700_000_000_000, click1: 1_700_000_000_000 });
   const s = parseSave(JSON.stringify(v1));
@@ -209,4 +211,25 @@ test('offline: talentos y mejoras aumentan límite y eficiencia', () => {
   const r = computeOfflineGain(s, 1 + 100 * 3600 * 1000);
   assert.equal(r.seconds, 12 * 3600);
   assert.ok(approx(r.efficiency, 0.6));
+});
+
+test('migración v2 → v3 añade Acciones y Consejo sin tocar lo demás', () => {
+  const v2 = { version: 2, resources: { paperwork: 10, cycleTotal: 10, lifetimePaperwork: 10, influence: 5, totalInfluenceEarned: 7 },
+    buildings: { printer: 2 }, upgrades: [], talents: [], achievements: {}, unlockedDepartments: ['basement'], statistics: { totalClicks: 3 } };
+  const s = parseSave(JSON.stringify(v2));
+  assert.equal(s.version, SAVE_VERSION);
+  assert.equal(s.resources.influence, 5);
+  assert.equal(s.resources.shares, 0);
+  assert.equal(s.statistics.totalMergers, 0);
+  assert.deepEqual(s.board, []);
+});
+
+test('importación: ventajas del Consejo desconocidas o sin requisitos se descartan', () => {
+  const s = makeState();
+  s.board = ['boardSynergy', 'boardSeedCapital', 'hackPerk'];
+  s.resources.shares = -3;
+  const r = importSave(JSON.stringify(s));
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.state.board, ['boardSeedCapital']);
+  assert.equal(r.state.resources.shares, 0);
 });

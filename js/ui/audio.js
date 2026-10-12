@@ -19,6 +19,24 @@ function getContext() {
   return ctx;
 }
 
+/**
+ * Los navegadores solo permiten iniciar el audio tras un gesto del usuario.
+ * Se crea y reanuda el contexto en la primera interacción, de modo que los
+ * sonidos posteriores lanzados por temporizadores (eventos, formularios
+ * dorados) también suenen.
+ */
+export function initAudioUnlock() {
+  const unlock = () => {
+    const ac = getContext();
+    if (ac && ac.state === 'running') {
+      window.removeEventListener('pointerdown', unlock, true);
+      window.removeEventListener('keydown', unlock, true);
+    }
+  };
+  window.addEventListener('pointerdown', unlock, true);
+  window.addEventListener('keydown', unlock, true);
+}
+
 export function setSoundEnabled(value) {
   enabled = Boolean(value);
 }

@@ -29,7 +29,8 @@ o Safari recientes).
   cuando tiene el foco): produce papeleo.
 - **Edificios**: compra ×1, ×10 o el máximo asequible (selector en el panel).
 - **Pestañas**: Edificios, Mejoras, Talentos, Logros, Misiones, Prestigio y
-  Estadísticas. Con teclado: flechas izquierda/derecha sobre las pestañas.
+  Estadísticas. Con teclado: flechas izquierda/derecha sobre las pestañas. En
+  móvil son una barra fija inferior con las 7 secciones a la vista.
 - **Formularios dorados**: aparecen a partir del nivel 4. ¡Haz clic antes de que
   se escapen!
 - **⚙ Ajustes**: partículas, reducir movimiento, sonido, frecuencia de eventos,
@@ -47,9 +48,18 @@ o Safari recientes).
 5. **Despacho del Dios Administrativo** (nivel 5): edificios cósmicos y el
    formulario 404-B (final de la historia; se puede seguir jugando).
 
+6. **Consejo de Administración del Multiverso** (nivel 6): se desbloquea al
+   firmar el 404-B y abre la **Fusión multiversal** (segunda capa de prestigio).
+
 Ascender reinicia papeleo, edificios, mejoras y misiones a cambio de
 **Influencia**, que da un bonus permanente de producción y compra talentos.
 Se conservan logros, talentos, Influencia, departamentos y estadísticas.
+
+Fusionarse (segunda capa) reinicia además la Influencia y los talentos a cambio
+de **Acciones** (◆): +50 % de producción por cada acción ganada y 8 ventajas
+permanentes del Consejo de Administración (capital inicial, descuentos,
+automatización, conservar talentos…).
+Fórmula: `Acciones = floor(cbrt(Influencia ganada en esta fusión / 20000))`.
 
 ## Partidas guardadas
 
@@ -75,8 +85,8 @@ dirección o puerto son partidas distintas.
 Requisitos: Node.js 18+ (probado con Node 22). No hay dependencias que instalar.
 
 ```bash
-npm test            # 70 pruebas unitarias (node --test), incluida una regresión de balance
-npm run test:e2e    # prueba de humo en Chromium real con Playwright (33 comprobaciones)
+npm test            # 80 pruebas unitarias (node --test), incluida una regresión de balance
+npm run test:e2e    # prueba de humo en Chromium real con Playwright (37 comprobaciones)
 npm run balance     # simulación de balance: node tests/tools/balance.mjs [horas] [informe-min] [estrategia]
 npm run lint        # ESLint con reglas básicas (eslint.config.js)
 ```
@@ -92,10 +102,11 @@ indicar otro navegador con `CHROMIUM_PATH=/ruta/al/chromium`.
 index.html                 Página única
 css/                       variables, base, layout, components, animations, responsive
 js/main.js                 Arranque: carga, offline, bucles, autoguardado, acciones
-js/config/*.data.js        DATOS: edificios, departamentos, mejoras, talentos, logros, misiones, eventos
+js/config/*.data.js        DATOS: edificios, departamentos, mejoras, talentos, logros, misiones, eventos,
+                           ventajas del Consejo (board.data.js)
 js/core/                   state (estado), economy (reglas económicas), progression (requisitos y
                            departamentos), gameLoop (simulación), events (bus de eventos)
-js/systems/                buildings, upgrades, talents, achievements, prestige, missions,
+js/systems/                buildings, upgrades, talents, achievements, prestige, merger (2.ª capa), missions,
                            offlineProgress, randomEvents, effects (efectos temporales)
 js/storage/                save (guardado, validación, exportar/importar), migrations
 js/ui/                     render (orquestador), navigation, notifications, sprites, pixelArt,
@@ -166,13 +177,13 @@ Tras cualquier cambio de números, ejecuta `npm run balance` y `npm test`.
 
 ## Problemas conocidos
 
-- Los textos dentro de la escena (carteles, bocadillos) se dibujan con una fuente
-  pixel a tamaño pequeño y pueden verse algo suaves al escalar.
-- En móvil (≤ 760 px) la barra de pestañas no cabe entera: se desplaza en
-  horizontal (Misiones, Prestigio y Estadísticas quedan a la derecha). El logo y
-  el estado de guardado se ocultan para dejar sitio a los recursos.
-- El sonido sintetizado puede no sonar hasta la primera interacción (política de
-  reproducción automática de los navegadores).
+No hay errores conocidos que impidan jugar. Limitaciones de diseño:
+
+- Como en todo juego web, el sonido empieza tras la primera interacción con la
+  página (lo exige el navegador); a partir de ahí suena todo, incluidos los
+  avisos de eventos.
+- Tras unas 6 h de juego intensivo los números alcanzan escalas muy grandes
+  (Sp, Oc…). El formato lo soporta hasta ~1e308 sin dar Infinity.
 
 ## Créditos
 

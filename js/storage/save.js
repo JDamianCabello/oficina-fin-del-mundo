@@ -13,6 +13,7 @@ import { TALENTS_BY_ID } from '../config/talents.data.js';
 import { ACHIEVEMENT_IDS } from '../config/achievements.data.js';
 import { DEPARTMENT_IDS } from '../config/departments.data.js';
 import { MISSION_IDS } from '../config/missions.data.js';
+import { BOARD_PERKS_BY_ID } from '../config/board.data.js';
 import { RANDOM_EVENTS_BY_ID } from '../config/randomEvents.data.js';
 import { EFFECT_TYPES, MAX_SAFE_AMOUNT } from '../core/economy.js';
 import { migrate } from './migrations.js';
@@ -128,6 +129,22 @@ function sanitizeTalents(list) {
   return out;
 }
 
+/** Ventajas del Consejo conocidas y con sus requisitos presentes. */
+function sanitizeBoard(list) {
+  const out = uniqueKnown(list, Object.keys(BOARD_PERKS_BY_ID));
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const id of [...out]) {
+      if (!BOARD_PERKS_BY_ID[id].requires.every((r) => out.includes(r))) {
+        out.splice(out.indexOf(id), 1);
+        changed = true;
+      }
+    }
+  }
+  return out;
+}
+
 /**
  * Construye un estado válido a partir de datos no confiables (ya migrados).
  * Ignora claves desconocidas, descarta ids desconocidos y sustituye cualquier
@@ -144,6 +161,8 @@ export function sanitizeState(raw) {
   state.resources.lifetimePaperwork = num(r.lifetimePaperwork);
   state.resources.influence = num(r.influence);
   state.resources.totalInfluenceEarned = num(r.totalInfluenceEarned);
+  state.resources.shares = num(r.shares);
+  state.resources.totalSharesEarned = Math.max(num(r.totalSharesEarned), state.resources.shares);
   // Coherencia: lo producido nunca es menor que lo disponible.
   state.resources.lifetimePaperwork = Math.max(state.resources.lifetimePaperwork, state.resources.cycleTotal);
 
@@ -152,6 +171,7 @@ export function sanitizeState(raw) {
   }
   state.upgrades = uniqueKnown(raw.upgrades, UPGRADE_IDS);
   state.talents = sanitizeTalents(raw.talents);
+  state.board = sanitizeBoard(raw.board);
 
   if (raw.achievements && typeof raw.achievements === 'object' && !Array.isArray(raw.achievements)) {
     for (const id of ACHIEVEMENT_IDS) {

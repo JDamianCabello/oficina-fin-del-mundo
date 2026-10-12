@@ -4,9 +4,10 @@
 
 import { $, el, clear, setText, setAttr } from './dom.js';
 import { isViewVisible } from './navigation.js';
-import { getTotalRate, getClickValue, getPrestigeMultiplier, getModifiers, isIdleBonusActive } from '../core/economy.js';
+import { getTotalRate, getClickValue, getPrestigeMultiplier, getSharesMultiplier, getModifiers, isIdleBonusActive } from '../core/economy.js';
 import { getCurrentDepartment, isFeatureUnlocked } from '../core/progression.js';
 import { canPrestige } from '../systems/prestige.js';
+import { canMerge, availableBoardPerks } from '../systems/merger.js';
 import { formatNumber, formatPercent } from '../utils/format.js';
 import { createBuildingsView } from './views/buildingsView.js';
 import { createUpgradesView } from './views/upgradesView.js';
@@ -50,6 +51,9 @@ export function createRenderer({ getState, actions }) {
     rate: $('#res-rate'),
     influence: $('#res-influence'),
     influenceBonus: $('#res-influence-bonus'),
+    sharesBox: $('#res-shares-box'),
+    shares: $('#res-shares'),
+    sharesBonus: $('#res-shares-bonus'),
     clickValue: $('#click-value'),
     depLevel: $('#department-level'),
     depName: $('#department-name'),
@@ -92,6 +96,12 @@ export function createRenderer({ getState, actions }) {
     setText(refs.influence, formatNumber(Math.floor(state.resources.influence)));
     const bonus = getPrestigeMultiplier(state) - 1;
     setText(refs.influenceBonus, `+${formatPercent(bonus)} prod.`);
+    const showShares = isFeatureUnlocked(state, 'merger') || state.resources.totalSharesEarned > 0;
+    if (refs.sharesBox.hidden === showShares) refs.sharesBox.hidden = !showShares;
+    if (showShares) {
+      setText(refs.shares, formatNumber(Math.floor(state.resources.shares)));
+      setText(refs.sharesBonus, `+${formatPercent(getSharesMultiplier(state) - 1)} prod.`);
+    }
     const mods = getModifiers(state);
     const crit = mods.critChance > 0 ? ` · ${formatPercent(mods.critChance)} crítico` : '';
     const idle = isIdleBonusActive(state) ? ' · bonus de inactividad activo' : '';
@@ -142,7 +152,7 @@ export function createRenderer({ getState, actions }) {
     setBadge(refs.badges.upgrades, views.upgrades.affordableCount(state));
     setBadge(refs.badges.missions, views.missions.completeCount(state));
     setBadge(refs.badges.talents, views.talents.availableCount(state));
-    setBadge(refs.badges.prestige, canPrestige(state) ? true : 0);
+    setBadge(refs.badges.prestige, canPrestige(state) || canMerge(state) || availableBoardPerks(state) > 0 ? true : 0);
     const unlockedCount = Object.keys(state.achievements).length;
     if (seenAchievements === null) seenAchievements = unlockedCount;
     if (isViewVisible('achievements')) seenAchievements = unlockedCount;

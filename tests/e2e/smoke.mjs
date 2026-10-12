@@ -207,6 +207,27 @@ try {
   st = await page.evaluate(() => window.__ofdm.getState());
   check('comprar un talento desde el árbol', st.talents.includes('lazyIronFinger'));
 
+  // Segunda capa: fusión multiversal y Consejo
+  await page.evaluate(() => {
+    const s = window.__ofdm.getState();
+    s.unlockedDepartments = ['basement', 'exploitation', 'hellHR', 'multinational', 'adminGod', 'board'];
+    s.resources.totalInfluenceEarned = 8 * 20000;
+  });
+  await page.click('#tab-prestige');
+  await page.waitForTimeout(400);
+  await page.click('#prestige button:has-text("Fusionar")');
+  await page.check('#merger-ack');
+  await page.click('#modal-actions button:has-text("Fusionar")');
+  await page.waitForTimeout(300);
+  st = await page.evaluate(() => window.__ofdm.getState());
+  check('fusión multiversal con confirmación da Acciones y reinicia la Influencia', st.statistics.totalMergers === 1 && st.resources.shares === 2 && st.resources.totalInfluenceEarned === 0 && st.talents.length === 0,
+    `acciones=${st.resources.shares}`);
+  check('el contador de Acciones aparece en la barra superior', await page.locator('#res-shares-box').isVisible());
+  await page.waitForTimeout(300);
+  await page.click('#prestige li[data-id="boardSeedCapital"] button');
+  st = await page.evaluate(() => window.__ofdm.getState());
+  check('comprar una ventaja del Consejo', st.board.includes('boardSeedCapital') && st.resources.shares === 1);
+
   // Escena: la oficina dibuja algo (píxeles no vacíos)
   const painted = await page.evaluate(() => {
     const c = document.querySelector('#scene-canvas');
@@ -253,6 +274,11 @@ try {
   const leftVisible = await mp.locator('.panel--left').isVisible();
   const upgradesHidden = !(await mp.locator('#view-upgrades').isVisible());
   check('móvil: las secciones funcionan como pestañas', leftVisible && upgradesHidden);
+  const tabsFit = await mp.evaluate(() => [...document.querySelectorAll('#tabs .tab')].every((t) => {
+    const r = t.getBoundingClientRect();
+    return r.left >= 0 && r.right <= window.innerWidth + 0.5 && r.bottom <= window.innerHeight + 0.5;
+  }));
+  check('móvil: las 7 pestañas caben en la barra inferior', tabsFit);
   await mp.screenshot({ path: join(OUT, 'mobile.png'), fullPage: false });
   await mp.tap('#tab-talents');
   await mp.screenshot({ path: join(OUT, 'mobile-talents.png'), fullPage: false });

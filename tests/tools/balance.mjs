@@ -17,6 +17,8 @@ import { getActiveMissions, claimMission, isMissionComplete } from '../../js/sys
 import { resolveEvent, clickGolden } from '../../js/systems/randomEvents.js';
 import { canPrestige, getPrestigeGain, performPrestige } from '../../js/systems/prestige.js';
 import { buyTalent, getTalentStatus } from '../../js/systems/talents.js';
+import { canMerge, getMergerGain, performMerger, buyBoardPerk, getBoardPerkStatus } from '../../js/systems/merger.js';
+import { BOARD_PERKS } from '../../js/config/board.data.js';
 import { TALENTS } from '../../js/config/talents.data.js';
 import { formatNumber, formatDuration } from '../../js/utils/format.js';
 
@@ -90,6 +92,7 @@ export function simulate(strategyName, hours = 6, { seed = 7, log = false, repor
   let clickCarry = 0;
   let bestRatio = 0;
   const prestiges = [];
+  const mergers = [];
 
   const total = hours * 3600;
   for (let t = 0; t < total; t++) {
@@ -134,11 +137,29 @@ export function simulate(strategyName, hours = 6, { seed = 7, log = false, repor
       }
     }
     if (state.resources.influence > 0 && t % 10 === 0) buyTalents(state, strat.branches);
+    // Segunda capa: fusionarse cuando las Acciones posibles al menos dupliquen las ganadas.
+    if (t % 10 === 0 && canMerge(state)) {
+      const gain = getMergerGain(state);
+      if (gain >= Math.max(2, state.resources.totalSharesEarned)) {
+        const r = performMerger(state, { confirmed: true });
+        if (r.ok) {
+          mergers.push({ t: state.statistics.playTimeSeconds, gain: r.gained });
+          mark(`FUSIÓN #${mergers.length}: +${r.gained} Acciones`);
+          bestRatio = 0;
+          runChecks(state, ['prestige']);
+        }
+      }
+    }
+    if (state.resources.shares > 0 && t % 10 === 0) {
+      for (const perk of [...BOARD_PERKS].sort((a, b) => a.cost - b.cost)) {
+        if (getBoardPerkStatus(state, perk.id) === 'available' && buyBoardPerk(state, perk.id).ok) mark(`Consejo: ${perk.id}`);
+      }
+    }
     if (log && report && t % (report * 60) === 0 && t > 0) {
       console.log(`  ${formatDuration(t).padStart(12)}  · pps ${formatNumber(getTotalRate(state))}, ciclo ${formatNumber(state.resources.cycleTotal)}, edificios ${Object.values(state.buildings).reduce((a, b) => a + b, 0)}, mejoras ${state.upgrades.length}, Influencia posible ${getPrestigeGain(state)}`);
     }
   }
-  return { state, milestones, prestiges };
+  return { state, milestones, prestiges, mergers };
 }
 
 const isMain = import.meta.url === `file://${process.argv[1]}`;
@@ -151,6 +172,6 @@ if (isMain) {
     const t0 = Date.now();
     const { state, prestiges } = simulate(name, hours, { log: true, report });
     console.log(`  Final: papeleo total ${formatNumber(state.resources.lifetimePaperwork)}, Influencia total ${formatNumber(state.resources.totalInfluenceEarned)}, ` +
-      `ascensos ${prestiges.length}, talentos ${state.talents.length}, logros ${Object.keys(state.achievements).length} (sim ${Date.now() - t0} ms)`);
+      `ascensos ${prestiges.length}, fusiones ${state.statistics.totalMergers}, acciones ${state.resources.totalSharesEarned}, talentos ${state.talents.length}, logros ${Object.keys(state.achievements).length} (sim ${Date.now() - t0} ms)`);
   }
 }

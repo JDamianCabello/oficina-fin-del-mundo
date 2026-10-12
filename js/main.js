@@ -15,6 +15,8 @@ import { buyUpgrade as buyUpgradeSystem } from './systems/upgrades.js';
 import { buyTalent as buyTalentSystem, respecTalents as respecSystem } from './systems/talents.js';
 import { claimMission as claimMissionSystem } from './systems/missions.js';
 import { performPrestige } from './systems/prestige.js';
+import { performMerger, buyBoardPerk as buyBoardPerkSystem } from './systems/merger.js';
+import { BOARD_PERKS_BY_ID } from './config/board.data.js';
 import { resolveEvent, clickGolden } from './systems/randomEvents.js';
 import { applyOfflineProgress } from './systems/offlineProgress.js';
 import { discoverSecret, checkAchievements } from './systems/achievements.js';
@@ -27,9 +29,9 @@ import { loadSprites } from './ui/sprites.js';
 import { initParticles, emit as emitParticles, emitText, setParticlesEnabled, setReducedMotion } from './ui/particles.js';
 import { createScene } from './ui/scene.js';
 import { createRenderer } from './ui/render.js';
-import { play, setSoundEnabled } from './ui/audio.js';
+import { play, setSoundEnabled, initAudioUnlock } from './ui/audio.js';
 import {
-  openSettings, openRandomEvent, openPrestigeConfirm, openOfflineSummary, openEnding,
+  openSettings, openRandomEvent, openPrestigeConfirm, openMergerConfirm, openOfflineSummary, openEnding,
 } from './ui/views/dialogs.js';
 
 const AUTOSAVE_MS = 10_000;
@@ -206,6 +208,42 @@ const actions = {
     news(`Ascenso n.º ${state.statistics.totalPrestiges}: +${formatNumber(r.gained)} de Influencia`);
     saveNow();
     setView('talents');
+  },
+  async requestMerger() {
+    const ok = await openMergerConfirm({ getState });
+    if (!ok) return;
+    const r = performMerger(state, { confirmed: true });
+    if (!r.ok) {
+      toast({ title: 'No se pudo fusionar', text: r.reason === 'error' ? 'Error inesperado: la partida no se ha modificado.' : 'Todavía no cumples los requisitos.', icon: '⚠', type: 'warning' });
+      return;
+    }
+    document.body.classList.add('is-ascending');
+    setTimeout(() => document.body.classList.remove('is-ascending'), 1500);
+    play('prestige');
+    emitParticles('ascend', 0, 0, 140);
+    emitParticles('confetti', window.innerWidth / 2, window.innerHeight / 3, 80);
+    scene.reset(state);
+    scene.flash(1.5);
+    renderer.invalidate();
+    markTopics('prestige', 'stats', 'talents');
+    runChecksNow();
+    toast({ title: `¡Fusión completada! +${formatNumber(r.gained)} ◆`, text: 'La empresa y el multiverso ya son lo mismo. Empiezas de cero con Acciones.', icon: '⚭', type: 'achievement', duration: 7000 });
+    news(`Fusión n.º ${state.statistics.totalMergers}: +${formatNumber(r.gained)} Acciones`);
+    saveNow();
+  },
+  buyBoardPerk(id) {
+    const r = buyBoardPerkSystem(state, id);
+    if (!r.ok) {
+      play('error');
+      return;
+    }
+    play('upgrade');
+    emitParticles('star', lastPointer.x, lastPointer.y, 20);
+    news(`Ventaja del Consejo: ${BOARD_PERKS_BY_ID[id].name}`);
+    markTopics('prestige');
+    renderer.invalidate();
+    renderer.frame(true);
+    saveNow();
   },
   saveNow,
   replaceState(newState, message) {
@@ -424,6 +462,7 @@ async function init() {
   renderer = createRenderer({ getState, actions });
   wireGameEvents();
   wireInput();
+  initAudioUnlock();
 
   // Progreso offline (solo con un guardado previo válido).
   let offline = null;

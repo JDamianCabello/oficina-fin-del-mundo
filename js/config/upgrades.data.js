@@ -158,6 +158,11 @@ export const UPGRADES = [
   tier('gs2FA', 'Dios con doble factor de autenticación', 'Para rezar te llega un código por SMS. Servidores divinos ×2.', 'godServer', 10, 4000000000000000, 2),
   tier('ltPastOvertime', 'Horas extra del pasado', 'Las cobras en 1987, con intereses. Ministerios ×2.', 'lostTimeMinistry', 10, 250000000000000000, 2),
   tier('acHoldMusic', 'Música de espera apocalíptica', 'Cuatro jinetes en versión flauta dulce. Centros de atención ×2.', 'apocalypseCallCenter', 1, 2000000000000000000, 2),
+  tier('ufMultiverse', 'Multiversos en oferta 3×2', 'El tercero sale con las leyes físicas al revés. Fábricas de universos ×3.', 'universeFactory', 25, 200000000000000, 3),
+  tier('pdLoop', 'Bucle de paradojas certificado ISO', 'Cumple la norma antes de que exista. Paradojas ×3.', 'paradoxDept', 25, 8000000000000000, 3),
+  tier('gsCloud', 'Dios en la nube (de otro)', 'Alojado en un proveedor de dudosa reputación. Servidores divinos ×3.', 'godServer', 25, 400000000000000000, 3),
+  tier('ltEternity', 'Contrato indefinido... de verdad', 'Dura literalmente para siempre. Ministerios ×3.', 'lostTimeMinistry', 25, 25000000000000000000, 3),
+  tier('acPressOne', 'Pulse 1 para acabar con todo', 'La opción 2 es «hablar con un operador». Nadie la elige. Centros de atención ×3.', 'apocalypseCallCenter', 25, 2e21, 3),
   tier('acImportant', 'Su apocalipsis es importante para nosotros', 'Le atenderemos en cuanto acabe el mundo. Centros de atención ×2.', 'apocalypseCallCenter', 10, 20000000000000000000, 2),
 
   // ── Producción global ───────────────────────────────────────────────

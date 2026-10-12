@@ -22,6 +22,8 @@ const TOPIC_BY_TYPE = {
   upgradeTagCount: 'upgrades',
   department: 'departments',
   prestiges: 'prestige',
+  mergers: 'prestige',
+  boardPerks: 'prestige',
   talent: 'talents',
   talentsOwned: 'talents',
   talentBranches: 'talents',

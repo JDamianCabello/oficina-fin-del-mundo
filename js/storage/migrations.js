@@ -29,6 +29,15 @@ export const MIGRATIONS = {
     // `temp` se deja ausente: sanitizeState crea uno nuevo.
     return out;
   },
+  // v2 → v3: segunda capa de prestigio (Acciones y Consejo).
+  2(save) {
+    const resources = { ...(save.resources ?? {}) };
+    if (typeof resources.shares !== 'number') resources.shares = 0;
+    if (typeof resources.totalSharesEarned !== 'number') resources.totalSharesEarned = 0;
+    const statistics = { ...(save.statistics ?? {}) };
+    if (typeof statistics.totalMergers !== 'number') statistics.totalMergers = 0;
+    return { ...save, version: 3, resources, statistics, board: Array.isArray(save.board) ? save.board : [] };
+  },
 };
 
 /** Aplica las migraciones necesarias hasta SAVE_VERSION. */

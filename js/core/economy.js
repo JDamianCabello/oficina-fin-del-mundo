@@ -34,6 +34,7 @@
 //                     × (1 + Σ sinergias(b))
 //   multGlobal      = Π globalMult × (1 + Σ (bonusTemporal − 1)) × (1 + 0,01 × logros)
 //                     × multPrestigio(influenciaTotalGanada)  (ver getPrestigeMultiplier)
+//                     × (1 + 0,5 × accionesTotalesGanadas)     (segunda capa)
 //                     × (1 + Σ globalPerBuildingTypeAbove)
 //                     × (idleGlobalMult si procede)
 //   pps             = Σ prodEdificio(b) × multGlobal
@@ -46,6 +47,7 @@ import { BUILDINGS, BUILDING_IDS, BUILDINGS_BY_ID } from '../config/buildings.da
 import { UPGRADES_BY_ID } from '../config/upgrades.data.js';
 import { TALENTS_BY_ID } from '../config/talents.data.js';
 import { ACHIEVEMENTS_BY_ID, ACHIEVEMENT_GLOBAL_BONUS } from '../config/achievements.data.js';
+import { BOARD_PERKS_BY_ID, SHARE_GLOBAL_BONUS } from '../config/board.data.js';
 import { totalBuildings } from './state.js';
 
 export const CRIT_MULT = 10;
@@ -136,6 +138,8 @@ function modifiersKey(state, includeTemp) {
   return [
     state.upgrades.join(','),
     state.talents.join(','),
+    state.board.join(','),
+    state.resources.totalSharesEarned,
     Object.keys(state.achievements).length,
     state.resources.totalInfluenceEarned,
     temp,
@@ -161,6 +165,10 @@ export function getModifiers(state, { includeTemp = true } = {}) {
   for (const id of state.talents) {
     const t = TALENTS_BY_ID[id];
     if (t) t.effects.forEach((e) => applyEffect(mods, e));
+  }
+  for (const id of state.board) {
+    const perk = BOARD_PERKS_BY_ID[id];
+    if (perk) perk.effects.forEach((e) => applyEffect(mods, e));
   }
   for (const id of Object.keys(state.achievements)) {
     const a = ACHIEVEMENTS_BY_ID[id];
@@ -216,6 +224,11 @@ export function getPrestigeMultiplier(state, mods = getModifiers(state)) {
   return (1 + mods.influencePower * INFLUENCE_SOFTCAP) * Math.sqrt(earned / INFLUENCE_SOFTCAP);
 }
 
+/** Multiplicador permanente por Acciones ganadas (segunda capa): +50 % por acción. */
+export function getSharesMultiplier(state) {
+  return 1 + SHARE_GLOBAL_BONUS * Math.max(0, state.resources.totalSharesEarned);
+}
+
 export function isIdleBonusActive(state, mods = getModifiers(state)) {
   return mods.idleGlobalMult !== 1 && state.temp.secondsSinceClick >= IDLE_SECONDS;
 }
@@ -225,6 +238,7 @@ export function getGlobalMultiplier(state, mods = getModifiers(state), { forceId
   let mult = mods.global;
   mult *= 1 + ACHIEVEMENT_GLOBAL_BONUS * mods.achievementCount;
   mult *= getPrestigeMultiplier(state, mods);
+  mult *= getSharesMultiplier(state);
   if (mods.perBuildingType.length) {
     let bonus = 0;
     for (const { threshold, value } of mods.perBuildingType) {

@@ -106,6 +106,30 @@ export const RANDOM_EVENTS = [
         outcome: { lumpSeconds: 90, message: 'Has salvado los formularios. Los becarios siguen dentro, pero son intercambiables.' } },
     ],
   },
+  {
+    id: 'printerStrike',
+    title: 'Huelga general de impresoras',
+    text: 'Las impresoras se niegan a imprimir hasta que se reconozca el atasco de papel como enfermedad laboral.',
+    choices: [
+      { label: 'Que lo hagan los becarios a mano', description: 'Las impresoras no producen durante 60 s, pero tus clics valen ×3.',
+        outcome: { temp: { id: 'strikeManual', label: 'Becarios a mano', seconds: 60, effects: [{ type: 'buildingMult', target: 'printer', value: 0 }, { type: 'clickMult', value: 3 }] }, message: 'Los becarios descubren el bolígrafo. Hay lágrimas.' } },
+      { label: 'Firmar el convenio', description: 'Pagas el 4 % de tu papeleo. Producción ×1,75 durante 90 s.',
+        cost: { paperworkFraction: 0.04 },
+        outcome: { temp: { id: 'strikeDeal', label: 'Convenio de impresoras', seconds: 90, effects: [{ type: 'globalMult', value: 1.75 }] }, message: 'Las impresoras celebran imprimiendo confeti.' } },
+    ],
+  },
+  {
+    id: 'mondayLoop',
+    title: 'El lunes se repite',
+    text: 'Es lunes. Otra vez. El calendario ha dejado de pasar de página.',
+    choices: [
+      { label: 'Aprovechar para trabajar', description: 'Ganas 150 segundos de producción inmediata.',
+        outcome: { lumpSeconds: 150, message: 'Mismo lunes, más papeleo. Así funciona la productividad.' } },
+      { label: 'Romper el bucle con un café', description: 'Pagas el 3 % de tu papeleo. Producción ×2,5 durante 40 s.',
+        cost: { paperworkFraction: 0.03 },
+        outcome: { temp: { id: 'loopBroken', label: 'Martes por fin', seconds: 40, effects: [{ type: 'globalMult', value: 2.5 }] }, message: '¡Es martes! Nadie lo celebra, pero todos producen más.' } },
+    ],
+  },
 ];
 
 export const RANDOM_EVENTS_BY_ID = Object.fromEntries(RANDOM_EVENTS.map((e) => [e.id, e]));

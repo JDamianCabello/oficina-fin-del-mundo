@@ -37,6 +37,14 @@
           <span class="resource__rate"><span id="res-rate">0</span>/s</span>
         </div>
       </div>
+      <div class="resource resource--shares" id="res-shares-box" title="Acciones (segunda capa de prestigio)" hidden>
+        <span class="resource__icon" aria-hidden="true">◆</span>
+        <div class="resource__body">
+          <span class="resource__label">Acciones</span>
+          <span class="resource__value" id="res-shares">0</span>
+          <span class="resource__rate" id="res-shares-bonus">+0 %</span>
+        </div>
+      </div>
       <div class="resource resource--influence" title="Influencia (moneda permanente)">
         <span class="resource__icon" aria-hidden="true">✦</span>
         <div class="resource__body">
@@ -57,19 +65,19 @@
   <nav class="tabs" aria-label="Secciones del juego">
     <div class="tabs__list" role="tablist" id="tabs">
       <button type="button" role="tab" class="tab" data-view="buildings" id="tab-buildings" aria-controls="view-buildings">
-        <span class="tab__icon" aria-hidden="true">🏢</span><span class="tab__label">Edificios</span></button>
+        <span class="tab__icon" aria-hidden="true">🏢</span><span class="tab__label">Edificios</span><span class="tab__short" aria-hidden="true">Edif.</span></button>
       <button type="button" role="tab" class="tab" data-view="upgrades" id="tab-upgrades" aria-controls="view-upgrades">
-        <span class="tab__icon" aria-hidden="true">⬆</span><span class="tab__label">Mejoras</span><span class="tab__badge" id="badge-upgrades" hidden></span></button>
+        <span class="tab__icon" aria-hidden="true">⬆</span><span class="tab__label">Mejoras</span><span class="tab__short" aria-hidden="true">Mejoras</span><span class="tab__badge" id="badge-upgrades" hidden></span></button>
       <button type="button" role="tab" class="tab" data-view="talents" id="tab-talents" aria-controls="view-talents">
-        <span class="tab__icon" aria-hidden="true">✦</span><span class="tab__label">Talentos</span><span class="tab__badge" id="badge-talents" hidden></span></button>
+        <span class="tab__icon" aria-hidden="true">✦</span><span class="tab__label">Talentos</span><span class="tab__short" aria-hidden="true">Talentos</span><span class="tab__badge" id="badge-talents" hidden></span></button>
       <button type="button" role="tab" class="tab" data-view="achievements" id="tab-achievements" aria-controls="view-achievements">
-        <span class="tab__icon" aria-hidden="true">🏆</span><span class="tab__label">Logros</span><span class="tab__badge" id="badge-achievements" hidden></span></button>
+        <span class="tab__icon" aria-hidden="true">🏆</span><span class="tab__label">Logros</span><span class="tab__short" aria-hidden="true">Logros</span><span class="tab__badge" id="badge-achievements" hidden></span></button>
       <button type="button" role="tab" class="tab" data-view="missions" id="tab-missions" aria-controls="view-missions">
-        <span class="tab__icon" aria-hidden="true">📋</span><span class="tab__label">Misiones</span><span class="tab__badge" id="badge-missions" hidden></span></button>
+        <span class="tab__icon" aria-hidden="true">📋</span><span class="tab__label">Misiones</span><span class="tab__short" aria-hidden="true">Misiones</span><span class="tab__badge" id="badge-missions" hidden></span></button>
       <button type="button" role="tab" class="tab" data-view="prestige" id="tab-prestige" aria-controls="view-prestige">
-        <span class="tab__icon" aria-hidden="true">⇪</span><span class="tab__label">Prestigio</span><span class="tab__badge" id="badge-prestige" hidden></span></button>
+        <span class="tab__icon" aria-hidden="true">⇪</span><span class="tab__label">Prestigio</span><span class="tab__short" aria-hidden="true">Ascenso</span><span class="tab__badge" id="badge-prestige" hidden></span></button>
       <button type="button" role="tab" class="tab" data-view="stats" id="tab-stats" aria-controls="view-stats">
-        <span class="tab__icon" aria-hidden="true">📊</span><span class="tab__label">Estadísticas</span></button>
+        <span class="tab__icon" aria-hidden="true">📊</span><span class="tab__label">Estadísticas</span><span class="tab__short" aria-hidden="true">Datos</span></button>
     </div>
   </nav>
 

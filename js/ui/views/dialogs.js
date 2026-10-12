@@ -5,6 +5,7 @@ import { openModal, toast } from '../notifications.js';
 import { RANDOM_EVENTS_BY_ID } from '../../config/randomEvents.data.js';
 import { getChoiceCost } from '../../systems/randomEvents.js';
 import { getPrestigePreview } from '../../systems/prestige.js';
+import { getMergerPreview } from '../../systems/merger.js';
 import { exportSave, importSave, MAX_IMPORT_BYTES, STORAGE_KEYS } from '../../storage/save.js';
 import { formatNumber, formatDuration, formatPercent } from '../../utils/format.js';
 
@@ -201,4 +202,26 @@ export function openEnding() {
     ],
     actions: [{ label: 'Volver al trabajo', value: null, class: 'btn--primary', autofocus: true }],
   });
+}
+
+/** Confirmación explícita de la fusión (segunda capa). */
+export async function openMergerConfirm({ getState }) {
+  const m = getMergerPreview(getState());
+  const check = el('input', { type: 'checkbox', id: 'merger-ack' });
+  const choice = await openModal({
+    title: '¿Fusionar con el multiverso?',
+    body: [
+      el('p', { text: `Ganarás ${formatNumber(m.gain)} Acciones (tendrás ${formatNumber(m.after)} ◆). Tu bonus de acciones pasará de +${formatPercent(m.bonusNow)} a +${formatPercent(m.bonusAfter)}.` }),
+      el('p', { class: 'modal-note', text: `Se reinicia: ${m.resets.join('; ').toLowerCase()}.${m.keepTalents ? ' (Conservas los talentos gracias a «Memoria institucional».)' : ''}` }),
+      el('p', { text: `Se conserva: ${m.keeps.join('; ').toLowerCase()}.` }),
+      el('div', { class: 'setting' }, [el('label', { for: 'merger-ack', text: 'Entiendo que pierdo mi Influencia y mis talentos.' }), check]),
+    ],
+    actions: [{ label: 'Cancelar', value: null, autofocus: true }, { label: '⚭ Fusionar', value: 'go', class: 'btn--danger' }],
+  });
+  if (choice !== 'go') return false;
+  if (!check.checked) {
+    toast({ title: 'Fusión cancelada', text: 'Marca la casilla de confirmación para fusionarte.', icon: 'ℹ' });
+    return false;
+  }
+  return true;
 }

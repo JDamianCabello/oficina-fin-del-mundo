@@ -47,6 +47,12 @@ export const ACHIEVEMENTS = [
   { id: 'prestige1', name: 'Capitalismo dimensional', description: 'Asciende por primera vez.', condition: { type: 'prestiges', value: 1 },
     reward: { influence: 2, text: '+2 de Influencia (una sola vez).' } },
   { id: 'prestige5', name: 'Ascensor sin botón de bajada', description: 'Asciende 5 veces.', condition: { type: 'prestiges', value: 5 } },
+  { id: 'prestige25', name: 'Ascensor espacial', description: 'Asciende 25 veces.', condition: { type: 'prestiges', value: 25 },
+    reward: { effects: [{ type: 'influenceMult', value: 1.25 }], text: 'Influencia ×1,25 para siempre.' } },
+  { id: 'merger1', name: 'Fusión hostil con la realidad', description: 'Fusiona la empresa con el multiverso por primera vez.', condition: { type: 'mergers', value: 1 },
+    reward: { effects: [{ type: 'globalMult', value: 1.5 }], text: 'Producción total ×1,5 para siempre.' } },
+  { id: 'merger5', name: 'Monopolio de todas las realidades', description: 'Fusiónate 5 veces.', condition: { type: 'mergers', value: 5 } },
+  { id: 'boardFull', name: 'Consejo en pleno', description: 'Consigue todas las ventajas del Consejo de Administración.', condition: { type: 'boardPerks', value: 8 } },
 
   { id: 'talent1', name: 'Desarrollo profesional', description: 'Compra tu primer talento.', condition: { type: 'talentsOwned', value: 1 } },
   { id: 'talentBranches', name: 'Perfil polivalente', description: 'Ten al menos un talento en cada una de las 4 ramas.', condition: { type: 'talentBranches', value: 4 } },

@@ -10,6 +10,7 @@ import {
 import { UPGRADES_BY_ID } from '../../config/upgrades.data.js';
 import { getUpgradeCost } from '../../systems/upgrades.js';
 import { canPrestige, getPrestigeGain } from '../../systems/prestige.js';
+import { canMerge, getMergerGain } from '../../systems/merger.js';
 import { formatNumber } from '../../utils/format.js';
 
 export function createMissionsView({ getState, actions }) {
@@ -119,9 +120,11 @@ export function createMissionsView({ getState, actions }) {
     } else {
       label = 'Meta';
       title = 'El fin del mundo está aprobado. ¿Y ahora?';
-      note = canPrestige(state)
-        ? `Asciende para ganar ${formatNumber(getPrestigeGain(state))} de Influencia y repetirlo más rápido.`
-        : 'Completa los logros y talentos pendientes.';
+      note = canMerge(state)
+        ? `Fusiónate con el multiverso (pestaña Prestigio) para ganar ${formatNumber(getMergerGain(state))} Acciones.`
+        : canPrestige(state)
+          ? `Asciende para ganar ${formatNumber(getPrestigeGain(state))} de Influencia y acercarte a tu próxima Acción.`
+          : 'Completa los logros, talentos y ventajas del Consejo pendientes.';
     }
     const k = JSON.stringify([label, title, items, note]);
     if (k === objectiveKey) return;

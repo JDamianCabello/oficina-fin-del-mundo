@@ -16,6 +16,7 @@ const DEPARTMENT_STYLE = {
   exploitation: { wall: '#2b2546', wall2: '#241f3c', floor: '#1d1b2e', floor2: '#28243e', sign: 'EXPLOTACIÓN LABORAL', signColor: '#32f5c8', light: '#32f5c81c' },
   hellHR: { wall: '#3d1d2c', wall2: '#331826', floor: '#24121b', floor2: '#311924', sign: 'RR.HH. DEL INFIERNO', signColor: '#ff6b6b', light: '#ff4f4f26' },
   multinational: { wall: '#1b2c40', wall2: '#172537', floor: '#121b27', floor2: '#1a2534', sign: 'MULTINACIONAL INTERDIMENSIONAL', signColor: '#ff4fd8', light: '#ff4fd81f' },
+  board: { wall: '#3a2f14', wall2: '#2e250f', floor: '#1d170a', floor2: '#2a2110', sign: 'CONSEJO DEL MULTIVERSO', signColor: '#ffd166', light: '#ffd16633' },
   adminGod: { wall: '#2a1747', wall2: '#22123b', floor: '#170f27', floor2: '#211638', sign: 'DESPACHO DEL DIOS ADMINISTRATIVO', signColor: '#ffd166', light: '#ffd16626' },
 };
 
@@ -52,6 +53,26 @@ export function createScene(canvas, { getState, isReducedMotion }) {
   const background = document.createElement('canvas');
   background.width = SCENE_W;
   background.height = SCENE_H;
+  // Factor de resolución interna: la escena se dibuja en coordenadas lógicas
+  // (384×216) pero el canvas tiene tantos píxeles como la pantalla, así los
+  // sprites siguen nítidos (sin suavizado) y el texto se ve definido.
+  let k = 1;
+
+  function resize() {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const next = Math.max(1, Math.min(6, Math.ceil(((rect.width || SCENE_W) * dpr) / SCENE_W)));
+    if (next === k && canvas.width === SCENE_W * k) return;
+    k = next;
+    canvas.width = SCENE_W * k;
+    canvas.height = SCENE_H * k;
+    background.width = SCENE_W * k;
+    background.height = SCENE_H * k;
+    ctx.imageSmoothingEnabled = false;
+    backgroundKey = '';
+  }
+  if ('ResizeObserver' in window) new ResizeObserver(resize).observe(canvas);
+  window.addEventListener('resize', resize);
   let backgroundKey = '';
 
   const actors = []; // personajes y criaturas con movimiento
@@ -73,7 +94,7 @@ export function createScene(canvas, { getState, isReducedMotion }) {
 
   // ─── Fondo (se regenera solo al cambiar de departamento) ──────────────
   function currentDepartment(state) {
-    const order = ['basement', 'exploitation', 'hellHR', 'multinational', 'adminGod'];
+    const order = ['basement', 'exploitation', 'hellHR', 'multinational', 'adminGod', 'board'];
     let dep = 'basement';
     for (const id of order) if (state.unlockedDepartments.includes(id)) dep = id;
     return dep;
@@ -81,6 +102,7 @@ export function createScene(canvas, { getState, isReducedMotion }) {
 
   function renderBackground(dep) {
     const b = background.getContext('2d');
+    b.setTransform(k, 0, 0, k, 0, 0);
     b.imageSmoothingEnabled = false;
     const st = DEPARTMENT_STYLE[dep];
     b.clearRect(0, 0, SCENE_W, SCENE_H);
@@ -95,7 +117,7 @@ export function createScene(canvas, { getState, isReducedMotion }) {
       b.fillStyle = '#1d2033';
       [[30, 50, 18, 10], [300, 70, 26, 14], [210, 110, 14, 8]].forEach(([x, y, w, h]) => b.fillRect(x, y, w, h));
     }
-    if (dep === 'adminGod') {
+    if (dep === 'adminGod' || dep === 'board') {
       for (let i = 0; i < 70; i++) {
         b.fillStyle = pick(['#ffd16688', '#ffffff55', '#ff4fd866']);
         b.fillRect(Math.floor(rand(0, SCENE_W)), Math.floor(rand(18, FLOOR_Y)), 1, 1);
@@ -402,7 +424,7 @@ export function createScene(canvas, { getState, isReducedMotion }) {
     }
     // Planeta rojo amenazante (se acerca con el progreso)
     const dep = currentDepartment(state);
-    const doom = ['basement', 'exploitation', 'hellHR', 'multinational', 'adminGod'].indexOf(dep);
+    const doom = Math.min(4, ['basement', 'exploitation', 'hellHR', 'multinational', 'adminGod', 'board'].indexOf(dep));
     ctx.fillStyle = '#c0392b';
     ctx.beginPath();
     ctx.arc(222, 46, 6 + doom * 2, 0, Math.PI * 2);
@@ -615,11 +637,13 @@ export function createScene(canvas, { getState, isReducedMotion }) {
       backgroundKey = dep;
     }
     const t = time;
+    ctx.setTransform(k, 0, 0, k, 0, 0);
+    ctx.imageSmoothingEnabled = false;
     ctx.save();
     if (shakeT > 0 && !isReducedMotion()) ctx.translate(Math.round(Math.sin(t / 20) * 2), 0);
     ctx.fillStyle = '#0b0c14';
     ctx.fillRect(-4, 0, SCENE_W + 8, SCENE_H);
-    ctx.drawImage(background, 0, 0);
+    ctx.drawImage(background, 0, 0, SCENE_W, SCENE_H);
     drawWindow(state, t);
     drawPrinters(state, t);
     drawMachines(state, t);
@@ -657,6 +681,7 @@ export function createScene(canvas, { getState, isReducedMotion }) {
 
   return {
     start() {
+      resize();
       if (running) return;
       running = true;
       lastTime = performance.now();

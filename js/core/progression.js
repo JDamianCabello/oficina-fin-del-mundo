@@ -27,6 +27,8 @@ export function getRequirementProgress(state, req, ctx = {}) {
     case 'achievement': return req.id in state.achievements ? 1 : 0;
     case 'department': return state.unlockedDepartments.includes(req.id) ? 1 : 0;
     case 'prestiges': return state.statistics.totalPrestiges;
+    case 'mergers': return state.statistics.totalMergers;
+    case 'boardPerks': return state.board.length;
     case 'talent': return state.talents.includes(req.id) ? 1 : 0;
     case 'talentsOwned': return state.talents.length;
     case 'talentBranches': return new Set(state.talents.map((id) => TALENTS_BY_ID[id]?.branch).filter(Boolean)).size;
@@ -67,6 +69,8 @@ export function describeRequirement(req) {
     case 'achievement': return `Conseguir el logro «${ACHIEVEMENTS_BY_ID[req.id]?.name ?? req.id}»`;
     case 'department': return `Desbloquear ${DEPARTMENTS_BY_ID[req.id]?.name ?? req.id}`;
     case 'prestiges': return req.value === 1 ? 'Ascender al menos una vez' : `Ascender ${n(req.value)} veces`;
+    case 'mergers': return req.value === 1 ? 'Fusionarse al menos una vez' : `Fusionarse ${n(req.value)} veces`;
+    case 'boardPerks': return `Tener ${n(req.value)} ventajas del Consejo`;
     case 'talent': return `Tener el talento «${TALENTS_BY_ID[req.id]?.name ?? req.id}»`;
     case 'talentsOwned': return `Tener ${n(req.value)} talentos`;
     case 'talentBranches': return `Tener talentos en ${n(req.value)} ramas`;

@@ -17,6 +17,7 @@
 //   { type: 'department', id }           Tener un departamento.
 //   { type: 'prestiges', value }         Número de ascensos realizados.
 //   { type: 'talent', id }               Tener un talento.
+//   { type: 'mergers', value }           Número de fusiones realizadas.
 //   (ver js/core/progression.js para la lista completa)
 
 export const DEPARTMENTS = [
@@ -81,6 +82,18 @@ export const DEPARTMENTS = [
       { type: 'building', id: 'dimensionalPrinter', count: 10 },
     ],
     features: ['cosmic', 'endgame'],
+  },
+  {
+    id: 'board',
+    level: 6,
+    name: 'Consejo de Administración del Multiverso',
+    title: 'Nivel 6 · Consejo de Administración',
+    description: 'Fusión multiversal (segunda capa de prestigio): Acciones y ventajas del Consejo.',
+    unlockText: 'El Consejo te recibe. Ya puedes FUSIONAR la empresa con el multiverso a cambio de Acciones.',
+    requirements: [
+      { type: 'upgrade', id: 'form404B' },
+    ],
+    features: ['merger'],
   },
 ];
 
