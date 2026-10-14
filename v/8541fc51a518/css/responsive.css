@@ -1,0 +1,274 @@
+/* Adaptación a tablet y móvil. */
+
+/* Tablet / portátil pequeño: dos columnas (escena arriba a todo el ancho). */
+@media (max-width: 1180px) {
+  .layout {
+    grid-template-columns: minmax(280px, 1fr) minmax(300px, 1fr);
+    grid-template-areas:
+      'scene scene'
+      'left right';
+  }
+
+  .scene-panel { grid-area: scene; }
+  .panel--left { grid-area: left; }
+  .panel--right { grid-area: right; }
+
+  .scene {
+    max-height: 52vh;
+    max-width: calc(52vh * 16 / 9);
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .panel {
+    position: static;
+    max-height: none;
+  }
+}
+
+/* Móvil: una columna. Las secciones se convierten en pestañas y solo se
+   muestra la vista activa (incluidos los edificios). */
+@media (max-width: 760px) {
+  :root {
+    --topbar-h: 56px;
+    --tabs-h: 56px;
+  }
+
+  .topbar {
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+  }
+
+  /* Barra compacta en una fila: logo pequeño, recursos y botones. */
+  .logo {
+    flex-shrink: 0;
+    padding: 0 2px;
+  }
+
+  .logo__line1,
+  .logo__line2 {
+    font-size: 0.62rem;
+    letter-spacing: 0;
+  }
+
+  .resource__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .resource__body {
+    grid-template-areas: 'value' 'rate';
+    grid-template-columns: auto;
+  }
+
+  /* Estado de guardado: solo el icono (el texto sigue disponible para lectores de pantalla). */
+  .save-status {
+    width: 18px;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 0;
+  }
+
+  .save-status::before {
+    font-size: 1rem;
+  }
+
+  .save-status:not([data-state])::before {
+    content: '…';
+    font-size: 1rem;
+    color: var(--color-text-2);
+  }
+
+  /* Pestañas: barra inferior fija con las 7 secciones visibles. */
+  .tabs {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    border-top: 2px solid var(--color-border);
+    border-bottom: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    background: var(--color-panel);
+  }
+
+  .tabs__list {
+    gap: 0;
+    padding: 2px;
+    overflow: visible;
+  }
+
+  body {
+    padding-bottom: calc(var(--tabs-h) + 12px + env(safe-area-inset-bottom, 0));
+  }
+
+  .topbar__actions .btn--icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .resources {
+    gap: var(--space-1);
+  }
+
+  .resource {
+    flex: 1;
+    padding: 2px var(--space-2);
+  }
+
+  .resource__icon {
+    font-size: 1.1rem;
+  }
+
+  .resource__value {
+    font-size: 1.35rem;
+  }
+
+  .view,
+  .panel {
+    scroll-margin-top: calc(var(--topbar-h) + var(--space-2));
+  }
+
+  .department__level {
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+
+  .department__name {
+    font-size: 1.2rem;
+  }
+
+  .tab {
+    flex: 1 1 0;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+    padding: 2px 0;
+    min-height: 52px;
+  }
+
+  .tab__icon {
+    font-size: 1.1rem;
+    line-height: 1.1;
+  }
+
+  .tab__label {
+    display: none;
+  }
+
+  .tab__short {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.85rem;
+  }
+
+  .tab__badge {
+    position: absolute;
+    top: 1px;
+    right: 2px;
+  }
+
+  .tab[aria-selected='true']::after {
+    top: -4px;
+    bottom: auto;
+  }
+
+  .tab[data-locked='true'] .tab__short::after {
+    content: ' 🔒';
+    font-size: 0.6em;
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'scene'
+      'left'
+      'right';
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4) var(--space-5);
+  }
+
+  .scene {
+    max-height: none;
+    max-width: none;
+  }
+
+  .scene__hint {
+    font-size: 0.95rem;
+  }
+
+  .btn--stamp {
+    width: 100%;
+    min-height: 52px;
+    font-size: 1.4rem;
+  }
+
+  .panel {
+    padding: var(--space-2);
+  }
+
+  /* Solo la vista activa */
+  .panel--left {
+    display: none;
+  }
+
+  body[data-view='buildings'] .panel--left {
+    display: block;
+  }
+
+  body[data-view='buildings'] .panel--right {
+    display: none;
+  }
+
+
+  .prestige__numbers {
+    grid-template-columns: 1fr;
+  }
+
+  .prestige__lists {
+    grid-template-columns: 1fr;
+  }
+
+  .toasts {
+    top: auto;
+    bottom: calc(var(--tabs-h) + 16px);
+    left: var(--space-2);
+    right: var(--space-2);
+    transform: none;
+    width: auto;
+  }
+
+  .toast {
+    padding: var(--space-1) var(--space-2);
+  }
+
+  .toast__text {
+    display: none;
+  }
+
+  .ticker {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .resource__rate,
+  .resource__icon {
+    display: none;
+  }
+
+  .resource__value {
+    font-size: 1.15rem;
+  }
+
+  .tab__short {
+    font-size: 0.72rem;
+  }
+}

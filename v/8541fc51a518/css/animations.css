@@ -1,0 +1,117 @@
+/* Animaciones CSS. Se desactivan con prefers-reduced-motion o con el ajuste
+   «Reducir movimiento» (clase .reduced-motion en <html>). */
+
+@keyframes card-pop {
+  0% { transform: scale(0.9); filter: brightness(2); }
+  60% { transform: scale(1.03); }
+  100% { transform: scale(1); filter: none; }
+}
+
+@keyframes toast-in {
+  from { transform: translateX(40px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@keyframes toast-out {
+  to { transform: translateX(40px); opacity: 0; }
+}
+
+@keyframes golden-float {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50% { transform: translateY(-8px) rotate(6deg); }
+}
+
+@keyframes golden-glow {
+  from { filter: drop-shadow(0 0 6px #ffd166); }
+  to { filter: drop-shadow(0 0 14px #ffd166) brightness(1.2); }
+}
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+@keyframes pulse-border {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  50% { box-shadow: var(--glow-magenta); }
+}
+
+@keyframes stamp-press {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.94) rotate(-2deg); }
+  100% { transform: scale(1); }
+}
+
+@keyframes bump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.12); color: var(--color-yellow); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-3px, 1px); }
+  50% { transform: translate(3px, -1px); }
+  75% { transform: translate(-2px, 0); }
+}
+
+@keyframes flash {
+  0% { box-shadow: 0 0 0 var(--pixel) var(--color-yellow), 0 0 30px var(--color-yellow); }
+  100% { box-shadow: var(--pixel-border); }
+}
+
+@keyframes ascend {
+  0% { filter: none; }
+  30% { filter: brightness(3) saturate(0); }
+  100% { filter: none; }
+}
+
+.btn--stamp.is-pressed {
+  animation: stamp-press 160ms steps(3, end);
+}
+
+.resource__value.is-bumped {
+  display: inline-block;
+  animation: bump 220ms steps(3, end);
+}
+
+.scene.is-shaking {
+  animation: shake 300ms steps(4, end);
+}
+
+.panel.is-flashing {
+  animation: flash 600ms steps(4, end);
+}
+
+body.is-ascending .layout {
+  animation: ascend 1.4s steps(8, end);
+}
+
+/* Movimiento reducido: sin animaciones decorativas. */
+html.reduced-motion *,
+html.reduced-motion *::before,
+html.reduced-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+}
+
+html.reduced-motion .ticker__track {
+  animation: none !important;
+  padding-left: var(--space-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .ticker__track {
+    animation: none !important;
+    padding-left: var(--space-2);
+  }
+}

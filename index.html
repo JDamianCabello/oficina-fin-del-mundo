@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <base href="v/bf746e744b51/">
+  <meta name="app-version" content="bf746e744b51">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="La Oficina del Fin del Mundo: un juego incremental sobre el papeleo que autoriza el apocalipsis.">
+  <meta name="theme-color" content="#10111B">
+  <title>La Oficina del Fin del Mundo</title>
+  <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body data-view="upgrades">
+  <a class="skip-link" href="#main-content">Saltar al contenido</a>
+
+  <noscript>
+    <p class="noscript">Este juego necesita JavaScript. Ábrelo con un servidor local (ver README.md).</p>
+  </noscript>
+
+  <header class="topbar" role="banner">
+    <button type="button" class="logo" id="logo" aria-label="La Oficina del Fin del Mundo">
+      <span class="logo__line1">LA OFICINA</span>
+      <span class="logo__line2">DEL FIN DEL MUNDO</span>
+    </button>
+
+    <div class="resources" aria-label="Recursos">
+      <div class="resource resource--paper" title="Papeleo disponible">
+        <span class="resource__icon" aria-hidden="true">📄</span>
+        <div class="resource__body">
+          <span class="resource__label">Papeleo</span>
+          <span class="resource__value" id="res-paperwork" aria-live="off">0</span>
+          <span class="resource__rate"><span id="res-rate">0</span>/s</span>
+        </div>
+      </div>
+      <div class="resource resource--shares" id="res-shares-box" title="Acciones (segunda capa de prestigio)" hidden>
+        <span class="resource__icon" aria-hidden="true">◆</span>
+        <div class="resource__body">
+          <span class="resource__label">Acciones</span>
+          <span class="resource__value" id="res-shares">0</span>
+          <span class="resource__rate" id="res-shares-bonus">+0 %</span>
+        </div>
+      </div>
+      <div class="resource resource--influence" title="Influencia (moneda permanente)">
+        <span class="resource__icon" aria-hidden="true">✦</span>
+        <div class="resource__body">
+          <span class="resource__label">Influencia</span>
+          <span class="resource__value" id="res-influence">0</span>
+          <span class="resource__rate" id="res-influence-bonus">+0 %</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="topbar__actions">
+      <span class="save-status" id="save-status" role="status" aria-live="polite">Sin guardar</span>
+      <button type="button" class="btn btn--icon" id="btn-sound" aria-label="Sonido activado" aria-pressed="true">♪</button>
+      <button type="button" class="btn btn--icon" id="btn-settings" aria-label="Ajustes">⚙</button>
+    </div>
+  </header>
+
+  <nav class="tabs" aria-label="Secciones del juego">
+    <div class="tabs__list" role="tablist" id="tabs">
+      <button type="button" role="tab" class="tab" data-view="buildings" id="tab-buildings" aria-controls="view-buildings">
+        <span class="tab__icon" aria-hidden="true">🏢</span><span class="tab__label">Edificios</span><span class="tab__short" aria-hidden="true">Edif.</span></button>
+      <button type="button" role="tab" class="tab" data-view="upgrades" id="tab-upgrades" aria-controls="view-upgrades">
+        <span class="tab__icon" aria-hidden="true">⬆</span><span class="tab__label">Mejoras</span><span class="tab__short" aria-hidden="true">Mejoras</span><span class="tab__badge" id="badge-upgrades" hidden></span></button>
+      <button type="button" role="tab" class="tab" data-view="talents" id="tab-talents" aria-controls="view-talents">
+        <span class="tab__icon" aria-hidden="true">✦</span><span class="tab__label">Talentos</span><span class="tab__short" aria-hidden="true">Talentos</span><span class="tab__badge" id="badge-talents" hidden></span></button>
+      <button type="button" role="tab" class="tab" data-view="achievements" id="tab-achievements" aria-controls="view-achievements">
+        <span class="tab__icon" aria-hidden="true">🏆</span><span class="tab__label">Logros</span><span class="tab__short" aria-hidden="true">Logros</span><span class="tab__badge" id="badge-achievements" hidden></span></button>
+      <button type="button" role="tab" class="tab" data-view="missions" id="tab-missions" aria-controls="view-missions">
+        <span class="tab__icon" aria-hidden="true">📋</span><span class="tab__label">Misiones</span><span class="tab__short" aria-hidden="true">Misiones</span><span class="tab__badge" id="badge-missions" hidden></span></button>
+      <button type="button" role="tab" class="tab" data-view="prestige" id="tab-prestige" aria-controls="view-prestige">
+        <span class="tab__icon" aria-hidden="true">⇪</span><span class="tab__label">Prestigio</span><span class="tab__short" aria-hidden="true">Ascenso</span><span class="tab__badge" id="badge-prestige" hidden></span></button>
+      <button type="button" role="tab" class="tab" data-view="stats" id="tab-stats" aria-controls="view-stats">
+        <span class="tab__icon" aria-hidden="true">📊</span><span class="tab__label">Estadísticas</span><span class="tab__short" aria-hidden="true">Datos</span></button>
+    </div>
+  </nav>
+
+  <main class="layout" id="main-content" tabindex="-1">
+    <section class="panel panel--left" aria-labelledby="buildings-title">
+      <div class="view" id="view-buildings" data-view="buildings" role="tabpanel" aria-labelledby="tab-buildings">
+        <div class="panel__header">
+          <h2 class="panel__title" id="buildings-title" tabindex="-1">Edificios</h2>
+          <div class="buy-amount" role="radiogroup" aria-label="Cantidad a comprar" id="buy-amount">
+            <button type="button" role="radio" class="chip" data-amount="1">×1</button>
+            <button type="button" role="radio" class="chip" data-amount="10">×10</button>
+            <button type="button" role="radio" class="chip" data-amount="max">Máx</button>
+          </div>
+        </div>
+        <ul class="building-list" id="building-list"></ul>
+      </div>
+    </section>
+
+    <section class="scene-panel" aria-label="La oficina">
+      <div class="scene-header">
+        <div class="department" id="department-badge">
+          <span class="department__level" id="department-level">Nivel 1</span>
+          <span class="department__name" id="department-name">El Sótano</span>
+        </div>
+        <ul class="temp-effects" id="temp-effects" aria-label="Efectos activos"></ul>
+      </div>
+      <div class="scene" id="scene">
+        <canvas class="scene__canvas" id="scene-canvas" width="384" height="216" aria-hidden="true"></canvas>
+        <button type="button" class="golden-form" id="golden-form" hidden aria-label="¡Formulario dorado! Haz clic para atraparlo">
+          <span aria-hidden="true">📜</span>
+        </button>
+        <p class="scene__hint" id="scene-hint">Haz clic en la oficina para sellar formularios</p>
+      </div>
+      <div class="scene-actions">
+        <button type="button" class="btn btn--stamp" id="btn-stamp" aria-describedby="click-value">
+          <span class="btn--stamp__icon" aria-hidden="true">⎙</span>
+          <span>SELLAR FORMULARIO</span>
+        </button>
+        <span class="click-value" id="click-value">+1 por clic</span>
+      </div>
+      <div class="ticker" aria-hidden="true"><div class="ticker__track" id="ticker"></div></div>
+    </section>
+
+    <section class="panel panel--right" aria-label="Gestión">
+      <div class="objective" id="objective"></div>
+
+      <div class="view" id="view-upgrades" data-view="upgrades" role="tabpanel" aria-labelledby="tab-upgrades">
+        <div class="panel__header"><h2 class="panel__title" tabindex="-1">Mejoras</h2>
+          <span class="panel__subtitle" id="upgrades-count"></span></div>
+        <ul class="upgrade-list" id="upgrade-list"></ul>
+        <details class="owned-upgrades" id="owned-upgrades">
+          <summary>Mejoras compradas en este ciclo</summary>
+          <ul class="owned-upgrades__list" id="owned-upgrade-list"></ul>
+        </details>
+      </div>
+
+      <div class="view" id="view-talents" data-view="talents" role="tabpanel" aria-labelledby="tab-talents">
+        <div class="panel__header"><h2 class="panel__title" tabindex="-1">Talentos</h2>
+          <span class="panel__subtitle" id="talents-influence"></span></div>
+        <div class="talent-tree" id="talent-tree"></div>
+        <div class="talent-detail" id="talent-detail" aria-live="polite"></div>
+      </div>
+
+      <div class="view" id="view-achievements" data-view="achievements" role="tabpanel" aria-labelledby="tab-achievements">
+        <div class="panel__header"><h2 class="panel__title" tabindex="-1">Logros</h2>
+          <span class="panel__subtitle" id="achievements-count"></span></div>
+        <div class="filter" role="radiogroup" aria-label="Filtrar logros" id="achievement-filter">
+          <button type="button" role="radio" class="chip" data-filter="all" aria-checked="true">Todos</button>
+          <button type="button" role="radio" class="chip" data-filter="unlocked" aria-checked="false">Conseguidos</button>
+          <button type="button" role="radio" class="chip" data-filter="locked" aria-checked="false">Pendientes</button>
+        </div>
+        <ul class="achievement-grid" id="achievement-list"></ul>
+      </div>
+
+      <div class="view" id="view-missions" data-view="missions" role="tabpanel" aria-labelledby="tab-missions">
+        <div class="panel__header"><h2 class="panel__title" tabindex="-1">Misiones</h2>
+          <span class="panel__subtitle" id="missions-count"></span></div>
+        <ul class="mission-list" id="mission-list"></ul>
+        <h3 class="panel__subheading">Departamentos</h3>
+        <ol class="department-list" id="department-list"></ol>
+      </div>
+
+      <div class="view" id="view-prestige" data-view="prestige" role="tabpanel" aria-labelledby="tab-prestige">
+        <div class="panel__header"><h2 class="panel__title" tabindex="-1">Prestigio: Ascender</h2></div>
+        <div class="prestige" id="prestige"></div>
+      </div>
+
+      <div class="view" id="view-stats" data-view="stats" role="tabpanel" aria-labelledby="tab-stats">
+        <div class="panel__header"><h2 class="panel__title" tabindex="-1">Estadísticas</h2></div>
+        <dl class="stats" id="stats"></dl>
+      </div>
+
+      <section class="news" aria-label="Tablón de anuncios">
+        <h3 class="panel__subheading">Tablón de anuncios</h3>
+        <ol class="news__list" id="news" aria-live="polite"></ol>
+      </section>
+    </section>
+  </main>
+
+  <div class="toasts" id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+  <dialog class="modal" id="modal" aria-labelledby="modal-title">
+    <form method="dialog" class="modal__inner" id="modal-form">
+      <h2 class="modal__title" id="modal-title"></h2>
+      <div class="modal__body" id="modal-body"></div>
+      <div class="modal__actions" id="modal-actions"></div>
+    </form>
+  </dialog>
+
+  <canvas class="fx-canvas" id="fx-canvas" aria-hidden="true"></canvas>
+</body>
+</html>
