@@ -2,12 +2,12 @@
 const browserGlobals = [
   'window', 'document', 'localStorage', 'performance', 'requestAnimationFrame', 'setTimeout', 'setInterval',
   'clearTimeout', 'clearInterval', 'console', 'navigator', 'Blob', 'URL', 'Image', 'Node', 'structuredClone',
-  'globalThis', 'process', 'ResizeObserver', 'sessionStorage',
+  'globalThis', 'process', 'ResizeObserver', 'sessionStorage', 'fetch',
 ];
 
 export default [
   {
-    files: ['js/**/*.js', 'tests/**/*.js', 'tests/**/*.mjs'],
+    files: ['js/**/*.js', 'tests/**/*.js', 'tests/**/*.mjs', 'scripts/**/*.mjs'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',

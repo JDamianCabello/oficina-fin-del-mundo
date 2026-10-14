@@ -58,6 +58,12 @@ export function setView(name, { focus = false, scroll = false } = {}) {
 }
 
 export function initNavigation() {
+  // Enlace «Saltar al contenido»: se gestiona por JS porque, con el <base href>
+  // de la versión publicada, «#main-content» apuntaría a otra URL.
+  $('.skip-link')?.addEventListener('click', (event) => {
+    event.preventDefault();
+    $('#main-content')?.focus();
+  });
   const tabs = $$('#tabs [role="tab"]');
   for (const tab of tabs) {
     tab.addEventListener('click', () => setView(tab.dataset.view, { scroll: true }));

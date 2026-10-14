@@ -80,13 +80,28 @@ Fórmula: `Acciones = floor(cbrt(Influencia ganada en esta fusión / 20000))`.
 Los datos se guardan por navegador y por dirección: `localhost:8000` y otra
 dirección o puerto son partidas distintas.
 
+## Versión publicada y actualización automática
+
+El juego se publica en GitHub Pages: https://jdamiancabello.github.io/oficina-fin-del-mundo/
+
+- Cada push a `main` ejecuta las pruebas y, si pasan, publica en la rama
+  `gh-pages` (`.github/workflows/pages.yml` + `scripts/build-pages.mjs`).
+- Cada versión va en su propia carpeta `v/<commit>/` (se conservan las 3 últimas)
+  y el `index.html` raíz apunta a la vigente con `<base href>`. Así nunca se
+  mezclan archivos de versiones distintas aunque el navegador los tenga en caché.
+- El juego abierto consulta `version.json` cada 5 minutos y al volver a la
+  pestaña. Si hay una versión nueva, **guarda la partida y se recarga solo**
+  (espera a que no haya ninguna ventana abierta). Se puede desactivar en
+  ⚙ Ajustes → «Actualizar automáticamente»; entonces solo muestra un aviso.
+- En local (`python3 -m http.server`) no hay `version.json` y no se comprueba nada.
+
 ## Pruebas
 
 Requisitos: Node.js 18+ (probado con Node 22). No hay dependencias que instalar.
 
 ```bash
-npm test            # 80 pruebas unitarias (node --test), incluida una regresión de balance
-npm run test:e2e    # prueba de humo en Chromium real con Playwright (37 comprobaciones)
+npm test            # 83 pruebas unitarias (node --test), incluida una regresión de balance
+npm run test:e2e    # Chromium real con Playwright: prueba de humo (37) + actualización automática (6)
 npm run balance     # simulación de balance: node tests/tools/balance.mjs [horas] [informe-min] [estrategia]
 npm run lint        # ESLint con reglas básicas (eslint.config.js)
 ```

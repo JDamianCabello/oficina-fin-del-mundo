@@ -25,6 +25,7 @@ import { setNotation, formatNumber, formatDuration } from './utils/format.js';
 import { $, el, replayAnimation } from './ui/dom.js';
 import { initNavigation, setView } from './ui/navigation.js';
 import { initModal, isModalOpen, openModal, toast, news } from './ui/notifications.js';
+import { initUpdater } from './ui/updater.js';
 import { loadSprites } from './ui/sprites.js';
 import { initParticles, emit as emitParticles, emitText, setParticlesEnabled, setReducedMotion } from './ui/particles.js';
 import { createScene } from './ui/scene.js';
@@ -182,6 +183,7 @@ const actions = {
   },
   setSetting(key, value) {
     state.settings[key] = value;
+    if (key === 'autoUpdate' && value) setTimeout(tryApplyUpdate, 0);
     applySettings();
     renderer.invalidate();
     renderer.frame(true);
@@ -327,6 +329,34 @@ function wireGameEvents() {
 }
 
 /** Abre la ventana del evento pendiente cuando no hay otra modal abierta. */
+// ─── Actualización automática ─────────────────────────────────────────────
+
+let pendingUpdate = null;
+
+/** Se llama cuando hay una versión nueva publicada. */
+function handleUpdateAvailable(version) {
+  pendingUpdate = version;
+  news(`Hay una versión nueva del juego (${version.slice(0, 7)}).`);
+  if (!state.settings.autoUpdate) {
+    toast({ title: 'Nueva versión disponible', text: 'Recarga la página para actualizar. Tu partida está guardada.', icon: '⟳', type: 'magenta', duration: 10000 });
+    saveNow();
+    return;
+  }
+  tryApplyUpdate();
+}
+
+/** Recarga solo en un momento seguro: sin ventanas abiertas y tras guardar. */
+function tryApplyUpdate() {
+  if (!pendingUpdate || !state.settings.autoUpdate) return;
+  if (isModalOpen() || eventModalOpen) {
+    setTimeout(tryApplyUpdate, 2000);
+    return;
+  }
+  if (!saveNow()) return; // si no se puede guardar, no recargar (se perdería progreso)
+  toast({ title: 'Actualizando el juego…', text: 'Partida guardada. La oficina vuelve en un segundo.', icon: '⟳', type: 'magenta' });
+  setTimeout(() => window.location.reload(), 2500);
+}
+
 async function maybeOpenEvent() {
   if (eventModalOpen || !state.temp.activeEvent || isModalOpen()) return;
   eventModalOpen = true;
@@ -486,7 +516,8 @@ async function init() {
   wireLifecycle();
   saveNow();
   // Gancho para pruebas automatizadas y depuración.
-  window.__ofdm = { getState, actions, saveNow };
+  const updater = initUpdater({ onUpdate: handleUpdateAvailable });
+  window.__ofdm = { getState, actions, saveNow, checkForUpdate: updater.check, version: updater.running };
 
   if (loaded.warning) {
     toast({ title: 'Aviso sobre la partida', text: loaded.warning, icon: '⚠', type: 'warning', duration: 12000 });

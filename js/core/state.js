@@ -15,6 +15,7 @@ export function createDefaultSettings() {
     eventFrequency: 'normal', // 'normal' | 'low' | 'off'
     notation: 'short', // 'short' | 'scientific'
     buyAmount: 1, // 1 | 10 | 'max'
+    autoUpdate: true, // recargar sola al publicarse una versión nueva
   };
 }
 

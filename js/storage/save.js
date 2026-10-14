@@ -203,6 +203,7 @@ export function sanitizeState(raw) {
     eventFrequency: ['normal', 'low', 'off'].includes(s.eventFrequency) ? s.eventFrequency : defaults.eventFrequency,
     notation: ['short', 'scientific'].includes(s.notation) ? s.notation : defaults.notation,
     buyAmount: [1, 10, 'max'].includes(s.buyAmount) ? s.buyAmount : defaults.buyAmount,
+    autoUpdate: typeof s.autoUpdate === 'boolean' ? s.autoUpdate : defaults.autoUpdate,
   };
   state.lastSavedAt = num(raw.lastSavedAt, 0, { max: 8.64e15 });
   state.version = SAVE_VERSION;

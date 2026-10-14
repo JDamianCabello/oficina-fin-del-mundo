@@ -1,5 +1,9 @@
 # Publica el juego en la rama gh-pages en cada push a main (tras pasar las pruebas).
 # GitHub Pages sirve esa rama: Settings → Pages → Source: «Deploy from a branch» → gh-pages / (root).
+#
+# Cada versión se publica en v/<commit>/ (archivos inmutables) y el index.html
+# raíz apunta a la última; version.json permite que el juego abierto detecte la
+# versión nueva y se actualice solo (ver js/ui/updater.js y scripts/build-pages.mjs).
 name: Publicar en GitHub Pages
 
 on:
@@ -12,7 +16,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -24,11 +28,12 @@ jobs:
           node-version: 22
       - name: Pruebas
         run: npm test
-      - name: Preparar los archivos del juego
+      - name: Recuperar la publicación anterior (para conservar versiones recientes)
         run: |
-          mkdir -p _site
-          cp -r index.html css js assets README.md ASSET_CREDITS.md _site/
-          touch _site/.nojekyll
+          git clone --depth 1 --branch gh-pages "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" _site || mkdir -p _site
+          rm -rf _site/.git
+      - name: Construir el sitio versionado
+        run: node scripts/build-pages.mjs "${GITHUB_SHA::12}" _site
       - name: Publicar en la rama gh-pages
         run: |
           cd _site
@@ -36,5 +41,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -q -m "Publicar ${GITHUB_SHA::7}"
+          git commit -q -m "Publicar ${GITHUB_SHA::12}"
           git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages

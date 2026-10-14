@@ -37,6 +37,7 @@ export async function openSettings({ getState, actions }) {
     checkboxSetting('set-sound', 'Sonido', 'Efectos sintetizados (sin archivos).', s.sound, (v) => actions.setSetting('sound', v)),
     selectSetting('set-events', 'Eventos aleatorios', 'Frecuencia de las interrupciones.', s.eventFrequency,
       [['normal', 'Normal'], ['low', 'Pocos'], ['off', 'Desactivados']], (v) => actions.setSetting('eventFrequency', v)),
+    checkboxSetting('set-autoupdate', 'Actualizar automáticamente', 'Si se publica una versión nueva del juego, guarda y recarga la página sola.', s.autoUpdate, (v) => actions.setSetting('autoUpdate', v)),
     selectSetting('set-notation', 'Notación de números', 'Sufijos (1,4 M) o científica (1,4e6).', s.notation,
       [['short', 'Sufijos'], ['scientific', 'Científica']], (v) => actions.setSetting('notation', v)),
     el('p', { class: 'setting__hint', text: `La partida se guarda sola cada 10 s en el almacenamiento local del navegador (clave «${STORAGE_KEYS.main}»), con una copia de seguridad en «${STORAGE_KEYS.backup}».` }),
