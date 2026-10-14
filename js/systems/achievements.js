@@ -24,6 +24,7 @@ const TOPIC_BY_TYPE = {
   prestiges: 'prestige',
   mergers: 'prestige',
   boardPerks: 'prestige',
+  milestones: 'buildings',
   talent: 'talents',
   talentsOwned: 'talents',
   talentBranches: 'talents',

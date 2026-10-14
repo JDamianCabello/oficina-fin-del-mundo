@@ -137,10 +137,10 @@ export function simulate(strategyName, hours = 6, { seed = 7, log = false, repor
       }
     }
     if (state.resources.influence > 0 && t % 10 === 0) buyTalents(state, strat.branches);
-    // Segunda capa: fusionarse cuando las Acciones posibles al menos dupliquen las ganadas.
+    // Segunda capa: fusionarse cuando las Acciones posibles sean al menos la mitad de las ganadas.
     if (t % 10 === 0 && canMerge(state)) {
       const gain = getMergerGain(state);
-      if (gain >= Math.max(2, state.resources.totalSharesEarned)) {
+      if (gain >= Math.max(2, Math.ceil(state.resources.totalSharesEarned * 0.5))) {
         const r = performMerger(state, { confirmed: true });
         if (r.ok) {
           mergers.push({ t: state.statistics.playTimeSeconds, gain: r.gained });

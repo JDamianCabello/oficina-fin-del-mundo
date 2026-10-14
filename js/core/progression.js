@@ -7,9 +7,20 @@ import { TALENTS_BY_ID } from '../config/talents.data.js';
 import { ACHIEVEMENTS_BY_ID } from '../config/achievements.data.js';
 import { DEPARTMENTS, DEPARTMENTS_BY_ID } from '../config/departments.data.js';
 import { totalBuildings } from './state.js';
+import { BUILDINGS } from '../config/buildings.data.js';
 import { getPps } from './economy.js';
 import { formatNumber } from '../utils/format.js';
 import { emit } from './events.js';
+
+/** Total de hitos de edificios alcanzados (10/25/50/100 unidades). */
+export function countMilestones(state) {
+  let total = 0;
+  for (const b of BUILDINGS) {
+    const count = state.buildings[b.id] || 0;
+    for (const m of b.milestones ?? []) if (count >= m.count) total += 1;
+  }
+  return total;
+}
 
 /** Valor actual de la magnitud que mide un requisito. */
 export function getRequirementProgress(state, req, ctx = {}) {
@@ -29,6 +40,7 @@ export function getRequirementProgress(state, req, ctx = {}) {
     case 'prestiges': return state.statistics.totalPrestiges;
     case 'mergers': return state.statistics.totalMergers;
     case 'boardPerks': return state.board.length;
+    case 'milestones': return countMilestones(state);
     case 'talent': return state.talents.includes(req.id) ? 1 : 0;
     case 'talentsOwned': return state.talents.length;
     case 'talentBranches': return new Set(state.talents.map((id) => TALENTS_BY_ID[id]?.branch).filter(Boolean)).size;
@@ -63,14 +75,15 @@ export function describeRequirement(req) {
     case 'lifetime': return `Producir ${n(req.value)} de papeleo en total`;
     case 'pps': return `Alcanzar ${n(req.value)} de papeleo/s`;
     case 'clicks': return `Hacer ${n(req.value)} clics manuales`;
-    case 'upgrade': return `Comprar «${UPGRADES_BY_ID[req.id]?.name ?? req.id}»`;
+    case 'upgrade': return `Comprar LA MEJORA «${UPGRADES_BY_ID[req.id]?.name ?? req.id}» (pestaña Mejoras)`;
     case 'upgradesOwned': return `Tener ${n(req.value)} mejoras compradas`;
     case 'upgradeTagCount': return `Comprar ${n(req.value)} mejoras de ${req.tag === 'coffee' ? 'café' : req.tag}`;
     case 'achievement': return `Conseguir el logro «${ACHIEVEMENTS_BY_ID[req.id]?.name ?? req.id}»`;
     case 'department': return `Desbloquear ${DEPARTMENTS_BY_ID[req.id]?.name ?? req.id}`;
-    case 'prestiges': return req.value === 1 ? 'Ascender al menos una vez' : `Ascender ${n(req.value)} veces`;
-    case 'mergers': return req.value === 1 ? 'Fusionarse al menos una vez' : `Fusionarse ${n(req.value)} veces`;
-    case 'boardPerks': return `Tener ${n(req.value)} ventajas del Consejo`;
+    case 'prestiges': return req.value === 1 ? 'Ascender al menos una vez (pestaña Prestigio)' : `Ascender ${n(req.value)} veces (pestaña Prestigio)`;
+    case 'mergers': return req.value === 1 ? 'Fusionarse al menos una vez (pestaña Prestigio)' : `Fusionarse ${n(req.value)} veces en total (pestaña Prestigio)`;
+    case 'boardPerks': return `Tener ${n(req.value)} ventajas del Consejo (pestaña Prestigio)`;
+    case 'milestones': return `Alcanzar ${n(req.value)} hitos de edificios`;
     case 'talent': return `Tener el talento «${TALENTS_BY_ID[req.id]?.name ?? req.id}»`;
     case 'talentsOwned': return `Tener ${n(req.value)} talentos`;
     case 'talentBranches': return `Tener talentos en ${n(req.value)} ramas`;

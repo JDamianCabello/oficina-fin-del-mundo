@@ -185,7 +185,7 @@ test('reasignar talentos devuelve toda la Influencia solo al inicio del ciclo', 
 // ─── Prestigio ──────────────────────────────────────────────────────────
 
 test('ganancia de Influencia = floor(cbrt(ciclo / 1e6))', () => {
-  const s = makeState({ departments: 'all' });
+  const s = makeState({ departments: ['exploitation', 'hellHR', 'multinational'] });
   for (const [total, gain] of [[0, 0], [999_999, 0], [1e6, 1], [8e6, 2], [1e9, 10], [1e10, 21], [1e12, 100], [1e15, 1000]]) {
     s.resources.cycleTotal = total;
     assert.equal(getPrestigeGain(s), gain, String(total));
@@ -371,5 +371,32 @@ test('bucle: los ticks largos de una pestaña en segundo plano se simulan, las s
     globalThis.performance = realPerf;
     Date.now = realNow;
     globalThis.setInterval = realSetInterval;
+  }
+});
+
+test('hay 12 niveles, en orden, y todos explican cómo desbloquearse', async () => {
+  const { DEPARTMENTS } = await import('../../js/config/departments.data.js');
+  const { describeRequirement } = await import('../../js/core/progression.js');
+  assert.ok(DEPARTMENTS.length >= 12);
+  DEPARTMENTS.forEach((d, i) => {
+    assert.equal(d.level, i + 1, d.id);
+    assert.ok(typeof d.howToUnlock === 'string' && d.howToUnlock.length > 10, d.id);
+    for (const r of d.requirements) assert.ok(!describeRequirement(r).includes('desconocido'), `${d.id}: ${r.type}`);
+  });
+  // El nivel 6 dice explícitamente que hace falta LA MEJORA del formulario.
+  const l6 = DEPARTMENTS.find((d) => d.level === 6);
+  assert.match(l6.howToUnlock, /LA MEJORA «Formulario 404-B/);
+  assert.match(describeRequirement(l6.requirements[0]), /LA MEJORA/);
+});
+
+test('cada edificio tiene 4 hitos que mejoran otras cosas', async () => {
+  const { BUILDINGS } = await import('../../js/config/buildings.data.js');
+  assert.ok(BUILDINGS.length >= 19);
+  for (const b of BUILDINGS) {
+    assert.deepEqual(b.milestones.map((m) => m.count), [10, 25, 50, 100], b.id);
+    for (const m of b.milestones) {
+      assert.ok(m.effects.length > 0 && m.text, b.id);
+      for (const e of m.effects) assert.notEqual(e.target, b.id, `${b.id} no debe mejorarse a sí mismo`);
+    }
   }
 });

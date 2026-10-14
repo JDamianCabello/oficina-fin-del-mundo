@@ -35,6 +35,9 @@ export const ANIMATIONS = {
   humanHelmet: { sheet: 'platformerChars', frames: [9, 10], fps: 4 },
   boxFace: { sheet: 'platformerChars', frames: [11, 12], fps: 3 },
   flyingBot: { sheet: 'platformerChars', frames: [24, 25, 26, 25], fps: 8 },
+  bigBot: { sheet: 'platformerChars', frames: [21, 22], fps: 4 },
+  smallBot: { sheet: 'platformerChars', frames: [18, 19], fps: 5 },
+  spikeBot: { sheet: 'platformerChars', frames: [15, 16], fps: 5 },
   minotaurWalk: { sheet: 'minotaur', frames: [0, 1, 2, 3], fps: 6 },
   ghostFloat: { sheet: 'ghost', frames: [0, 1, 2, 3], fps: 5 },
   ghostPurpleFloat: { sheet: 'ghostPurple', frames: [0, 1, 2, 3], fps: 5 },
@@ -183,6 +186,12 @@ export const ICONS = {
   wizard: { sheet: 'wizard', index: 4 },
   lizard: { sheet: 'lizard', index: 0 },
   dragon: { sheet: 'dragon', index: 0 },
+  timeRobot: { sheet: 'platformerChars', index: 21 },
+  quantum: { sheet: 'platformerChars', index: 24 },
+  goldPrinter: { sheet: 'px:goldPrinter', index: 1 },
+  voidCoffee: { sheet: 'px:coffee', index: 0 },
+  shareholder: { sheet: 'goblin', index: 0 },
+  entropy: { sheet: 'platformerChars', index: 15 },
 };
 
 const iconCache = new Map();

@@ -80,7 +80,7 @@ const PRESETS = {
   },
   coin(x, y, n) {
     for (let i = 0; i < n; i++) {
-      spawn({ kind: 'coin', x, y, vx: rand(-120, 120), vy: rand(-280, -140), gravity: 600, life: rand(0.7, 1.1), size: rand(4, 6), color: COLORS.yellow });
+      spawn({ kind: 'coin', x, y, vx: rand(-120, 120), vy: rand(-280, -140), gravity: 600, life: rand(0.7, 1.1), size: rand(5, 7), color: COLORS.yellow, spin: rand(8, 16) });
     }
   },
   spark(x, y, n) {
@@ -179,6 +179,8 @@ function update(dt) {
     }
     p.x += p.vx * dt;
     p.y += p.vy * dt;
+    // Los papeles y el confeti ondean como una hoja al caer.
+    if (p.kind === 'paper' && p.vy > 0) p.x += Math.sin((p.maxLife - p.life) * 9 + p.size) * 40 * dt;
     p.rotation += p.spin * dt;
     if (p.grow) p.size += p.grow * dt;
   }
@@ -191,8 +193,11 @@ function draw() {
     const fade = p.fade ? Math.min(1, t * 2) : 1;
     ctx.globalAlpha = fade * (p.alpha ?? 1);
     switch (p.kind) {
-      case 'text':
-        ctx.font = `${p.size}px 'Kenney Pixel', monospace`;
+      case 'text': {
+        // Aparece con un pequeño salto de escala y luego sube despacio.
+        const age = p.maxLife - p.life;
+        const pop = age < 0.12 ? 0.6 + (age / 0.12) * 0.6 : age < 0.22 ? 1.2 - ((age - 0.12) / 0.1) * 0.2 : 1;
+        ctx.font = `${Math.round(p.size * pop)}px 'Kenney Pixel', monospace`;
         ctx.textAlign = 'center';
         ctx.lineWidth = 4;
         ctx.strokeStyle = '#10111B';
@@ -200,6 +205,7 @@ function draw() {
         ctx.fillStyle = p.color;
         ctx.fillText(p.text, p.x, p.y);
         break;
+      }
       case 'paper':
         ctx.save();
         ctx.translate(p.x, p.y);
@@ -213,12 +219,17 @@ function draw() {
         }
         ctx.restore();
         break;
-      case 'coin':
+      case 'coin': {
+        // Moneda girando: su anchura varía con el ángulo.
+        const w = Math.max(1, p.size * Math.abs(Math.cos(p.rotation)));
         ctx.fillStyle = '#b8860b';
-        ctx.fillRect(Math.round(p.x) - p.size / 2, Math.round(p.y) - p.size / 2, p.size, p.size);
+        ctx.fillRect(Math.round(p.x - w / 2), Math.round(p.y) - p.size / 2, w, p.size);
         ctx.fillStyle = p.color;
-        ctx.fillRect(Math.round(p.x) - p.size / 2 + 1, Math.round(p.y) - p.size / 2 + 1, p.size - 2, p.size - 2);
+        if (w > 2) ctx.fillRect(Math.round(p.x - w / 2) + 1, Math.round(p.y) - p.size / 2 + 1, w - 2, p.size - 2);
+        ctx.fillStyle = '#fff6d0';
+        if (w > 3) ctx.fillRect(Math.round(p.x - w / 2) + 1, Math.round(p.y) - p.size / 2 + 1, 1, 1);
         break;
+      }
       case 'sprite': {
         ctx.save();
         ctx.translate(p.x, p.y);

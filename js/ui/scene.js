@@ -4,6 +4,7 @@
 // provocan reacciones. Solo LEE el estado; nunca lo modifica.
 
 import { drawFrame, drawAnim, frameSize, drawPlanet, getAnimFrame } from './sprites.js';
+import { DEPARTMENTS } from '../config/departments.data.js';
 
 export const SCENE_W = 384;
 export const SCENE_H = 216;
@@ -17,6 +18,12 @@ const DEPARTMENT_STYLE = {
   hellHR: { wall: '#3d1d2c', wall2: '#331826', floor: '#24121b', floor2: '#311924', sign: 'RR.HH. DEL INFIERNO', signColor: '#ff6b6b', light: '#ff4f4f26' },
   multinational: { wall: '#1b2c40', wall2: '#172537', floor: '#121b27', floor2: '#1a2534', sign: 'MULTINACIONAL INTERDIMENSIONAL', signColor: '#ff4fd8', light: '#ff4fd81f' },
   board: { wall: '#3a2f14', wall2: '#2e250f', floor: '#1d170a', floor2: '#2a2110', sign: 'CONSEJO DEL MULTIVERSO', signColor: '#ffd166', light: '#ffd16633' },
+  timeOffice: { wall: '#173a3a', wall2: '#123030', floor: '#0e2020', floor2: '#143030', sign: 'GASTOS TEMPORALES', signColor: '#32f5c8', light: '#32f5c830' },
+  quantumBureau: { wall: '#1a1a3d', wall2: '#141433', floor: '#0e0e24', floor2: '#16163a', sign: 'BUROCRACIA CUÁNTICA', signColor: '#9b8cff', light: '#9b8cff2a' },
+  altReality: { wall: '#3d1a3a', wall2: '#331530', floor: '#220e20', floor2: '#2e142c', sign: 'REALIDADES ALTERNATIVAS', signColor: '#ff4fd8', light: '#ff4fd82e' },
+  voidHQ: { wall: '#0c0c12', wall2: '#08080d', floor: '#050508', floor2: '#0b0b12', sign: 'SEDE EN EL VACÍO', signColor: '#f4f4fa', light: '#f4f4fa14' },
+  primordialBoard: { wall: '#3d2e0a', wall2: '#332608', floor: '#1f1805', floor2: '#2b2108', sign: 'ACCIONISTAS PRIMORDIALES', signColor: '#ffd166', light: '#ffd16638' },
+  endOfTime: { wall: '#2d0f0f', wall2: '#250b0b', floor: '#160606', floor2: '#210909', sign: 'EL FINAL DEL TIEMPO', signColor: '#ff6b35', light: '#ff6b3530' },
   adminGod: { wall: '#2a1747', wall2: '#22123b', floor: '#170f27', floor2: '#211638', sign: 'DESPACHO DEL DIOS ADMINISTRATIVO', signColor: '#ffd166', light: '#ffd16626' },
 };
 
@@ -26,6 +33,16 @@ const CHATTER = [
   'Esto es un trámite', 'Vuelva usted mañana', 'Falta un sello', 'Por triplicado, por favor',
   'Hoy no hay café', '¿El apocalipsis entra en mis horas?', 'Cuadra. No sé cómo, pero cuadra',
 ];
+
+const SHAREHOLDER_CHATTER = ['Dividendos', 'Quiero mi 3 %', 'Vendo galaxias', '¡Compro!', 'Bajista, como siempre'];
+const BOT_CHATTER = ['Viaje aprobado', 'Ayer vuelvo', 'Bip. Factura.', '01001111 01001011'];
+
+/** Rebote elástico (sale de 0, se pasa un poco de 1 y vuelve). */
+function easeOutBack(t) {
+  const c1 = 1.70158;
+  const c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
 
 const PIGEON_PERCHES = [
   { x: 20, y: 14 }, { x: 60, y: 14 }, { x: 110, y: 14 }, { x: 260, y: 14 }, { x: 320, y: 14 }, { x: 360, y: 14 },
@@ -91,12 +108,16 @@ export function createScene(canvas, { getState, isReducedMotion }) {
   let smokeTimer = 0;
   let onSmoke = null;
   let counts = {};
+  const ripples = []; // ondas al hacer clic
+  const flyingPapers = []; // folios que vuelan del escritorio a la pila
+  const motes = Array.from({ length: 22 }, () => ({ x: rand(120, 264), y: rand(30, 200), s: rand(0.3, 1), p: rand(0, 6.3) }));
+  const envelopes = Array.from({ length: 10 }, () => ({ x: rand(0, SCENE_W), y: rand(-200, 140), v: rand(6, 14), p: rand(0, 6.3) }));
+  let paperStack = 0; // altura de la pila de folios del escritorio (decorativa)
 
   // ─── Fondo (se regenera solo al cambiar de departamento) ──────────────
   function currentDepartment(state) {
-    const order = ['basement', 'exploitation', 'hellHR', 'multinational', 'adminGod', 'board'];
     let dep = 'basement';
-    for (const id of order) if (state.unlockedDepartments.includes(id)) dep = id;
+    for (const d of DEPARTMENTS) if (state.unlockedDepartments.includes(d.id)) dep = d.id;
     return dep;
   }
 
@@ -117,7 +138,7 @@ export function createScene(canvas, { getState, isReducedMotion }) {
       b.fillStyle = '#1d2033';
       [[30, 50, 18, 10], [300, 70, 26, 14], [210, 110, 14, 8]].forEach(([x, y, w, h]) => b.fillRect(x, y, w, h));
     }
-    if (dep === 'adminGod' || dep === 'board') {
+    if (['adminGod', 'board', 'quantumBureau', 'voidHQ', 'endOfTime'].includes(dep)) {
       for (let i = 0; i < 70; i++) {
         b.fillStyle = pick(['#ffd16688', '#ffffff55', '#ff4fd866']);
         b.fillRect(Math.floor(rand(0, SCENE_W)), Math.floor(rand(18, FLOOR_Y)), 1, 1);
@@ -239,6 +260,10 @@ export function createScene(canvas, { getState, isReducedMotion }) {
       wizard: capped(b.godServer, 1),
       lizard: capped(b.lostTimeMinistry, 3, 5),
       skeleton: state.unlockedDepartments.includes('hellHR') ? 1 : 0,
+      timeBot: capped(b.timeTravelAgency, 3, 5),
+      quantumBot: capped(b.quantumNotary, 3, 5),
+      shareholder: capped(b.primordialShareholders, 3, 5),
+      spikeBot: capped(b.entropyInbox, 3, 5),
     };
   }
 
@@ -256,6 +281,10 @@ export function createScene(canvas, { getState, isReducedMotion }) {
       case 'ghost': return makeWalker('ghost', { anim: index % 2 ? 'ghostPurpleFloat' : 'ghostFloat' }, { float: true, speed: 10 });
       case 'wizard': return makeWalker('wizard', { anim: 'wizardWalk' }, { speed: 10 });
       case 'lizard': return makeWalker('lizard', { anim: 'lizardWalk' }, { speed: 12 });
+      case 'timeBot': return makeWalker('timeBot', { anim: 'bigBot' }, { speed: 14 });
+      case 'quantumBot': return makeWalker('quantumBot', { anim: 'flyingBot' }, { float: true, speed: 22 });
+      case 'shareholder': return makeWalker('shareholder', { anim: 'goblinWalk' }, { speed: 11 });
+      case 'spikeBot': return makeWalker('spikeBot', { anim: 'spikeBot' }, { speed: 9 });
       case 'skeleton': {
         const w = makeWalker('skeleton', { anim: 'skeletonWalk' }, { speed: 6 });
         w.x = 360;
@@ -396,6 +425,41 @@ export function createScene(canvas, { getState, isReducedMotion }) {
       const talkers = actors.filter((a) => a.type !== 'pigeon' && !a.leaving);
       if (talkers.length) say(pick(talkers), pick(CHATTER), 3);
     }
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      ripples[i].t += dt;
+      if (ripples[i].t > 0.5) ripples.splice(i, 1);
+    }
+    for (let i = flyingPapers.length - 1; i >= 0; i--) {
+      const f = flyingPapers[i];
+      f.t += dt / 0.55;
+      if (f.t >= 1) {
+        flyingPapers.splice(i, 1);
+        paperStack = Math.min(14, paperStack + 0.25);
+      }
+    }
+    if (!reduced) {
+      for (const m of motes) {
+        m.y -= m.s * 4 * dt;
+        m.x += Math.sin(time / 1500 + m.p) * 3 * dt;
+        if (m.y < 24) { m.y = 205; m.x = rand(130, 254); }
+      }
+      if ((getState().buildings.entropyInbox || 0) > 0) {
+        for (const e of envelopes) {
+          e.y += e.v * dt;
+          e.x += Math.sin(time / 700 + e.p) * 6 * dt;
+          if (e.y > 150) { e.y = rand(-40, 0); e.x = rand(0, SCENE_W); }
+        }
+      }
+      // Los accionistas y robots también opinan.
+      if (Math.random() < dt * 0.08) {
+        const sh = actors.find((a) => a.type === 'shareholder' && !a.leaving && Math.random() < 0.5);
+        if (sh) say(sh, pick(SHAREHOLDER_CHATTER), 2);
+        const bot = actors.find((a) => (a.type === 'timeBot' || a.type === 'spikeBot') && !a.leaving && Math.random() < 0.5);
+        if (bot) say(bot, pick(BOT_CHATTER), 2);
+      }
+      // La imprenta de realidades suelta destellos de colores.
+      if ((getState().buildings.realityPrinter || 0) > 0 && Math.random() < dt * 1.5) spawnEffect('sparkle', rand(146, 170), rand(108, 122));
+    }
     // Humo del reactor
     smokeTimer -= dt;
     if (smokeTimer <= 0) {
@@ -424,7 +488,7 @@ export function createScene(canvas, { getState, isReducedMotion }) {
     }
     // Planeta rojo amenazante (se acerca con el progreso)
     const dep = currentDepartment(state);
-    const doom = Math.min(4, ['basement', 'exploitation', 'hellHR', 'multinational', 'adminGod', 'board'].indexOf(dep));
+    const doom = Math.min(5, DEPARTMENTS.findIndex((d) => d.id === dep));
     ctx.fillStyle = '#c0392b';
     ctx.beginPath();
     ctx.arc(222, 46, 6 + doom * 2, 0, Math.PI * 2);
@@ -557,31 +621,208 @@ export function createScene(canvas, { getState, isReducedMotion }) {
       if (sheet) return frameSize(sheet);
     }
     if (a.draw?.sheet) return frameSize(a.draw.sheet);
-    const map = { minotaur: 'minotaur', ghost: 'ghost', wizard: 'wizard', lizard: 'lizard', skeleton: 'skeleton', alien: 'platformerChars', goblin: 'goblin' };
+    const map = { minotaur: 'minotaur', ghost: 'ghost', wizard: 'wizard', lizard: 'lizard', skeleton: 'skeleton', alien: 'platformerChars', goblin: 'goblin',
+      timeBot: 'platformerChars', quantumBot: 'platformerChars', spikeBot: 'platformerChars', shareholder: 'goblin' };
     return frameSize(map[a.type] ?? 'dungeon');
+  }
+
+  function drawShadow(x, y, w, alpha) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = '#05050a';
+    ctx.beginPath();
+    ctx.ellipse(x, y, Math.max(0.5, w), Math.max(0.5, w * 0.3), 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
 
   function drawActor(a, t) {
     const reduced = isReducedMotion();
     const { w, h } = actorSize(a);
     const scale = a.scale ?? 1;
-    const pop = a.spawnT < 1 ? 0.5 + a.spawnT * 0.5 : 1;
-    const jump = (celebrateT > 0 || a.jumpT > 0) && !reduced ? Math.abs(Math.sin(t / 90)) * 4 : 0;
+    // Aparición con rebote elástico.
+    const pop = reduced || a.spawnT >= 1 ? 1 : Math.max(0.05, easeOutBack(a.spawnT));
+    const jumpPhase = (celebrateT > 0 || a.jumpT > 0) && !reduced ? Math.abs(Math.sin(t / 110)) : 0;
+    const jump = jumpPhase * 5;
     const walking = a.state === 'walk' && !reduced;
-    const breathe = !reduced && !walking ? Math.round(Math.sin(t / 500 + a.bob) * 0.6) : 0;
-    const hop = walking && a.draw?.sheet ? Math.abs(Math.sin(t / 110 + a.bob)) * 2 : 0;
+    const stepPhase = walking ? Math.abs(Math.sin(t / 110 + a.bob)) : 0;
+    const hop = walking && a.draw?.sheet ? stepPhase * 2 : 0;
     const floatY = a.float && !reduced ? Math.sin(t / 600 + a.bob) * 3 : 0;
+    // Respiración y estirar/encoger: más alto en el aire, achatado al tocar suelo.
+    const breathe = !reduced && !walking ? Math.sin(t / 520 + a.bob) * 0.025 : 0;
+    let sy = 1 + breathe;
+    if (jumpPhase > 0) sy = jumpPhase > 0.15 ? 1 + jumpPhase * 0.12 : 0.85;
+    else if (walking) sy = 1 + (stepPhase - 0.5) * 0.08;
+    const sx = 1 / sy;
+    // Sombra en el suelo (más pequeña cuanto más alto está).
+    if (a.alpha > 0.05) {
+      const lift = jump + hop + (a.float ? 18 : 0);
+      drawShadow(a.x, a.y + (a.float ? 16 : 0), (w * scale * 0.42) * pop * Math.max(0.4, 1 - lift / 40), 0.35 * a.alpha);
+    }
+    ctx.save();
+    ctx.translate(a.x, a.y - jump - hop + floatY);
+    ctx.scale(sx, sy);
+    // Parpadeo cuántico.
+    const alpha = a.type === 'quantumBot' && !reduced ? a.alpha * (0.55 + 0.45 * Math.abs(Math.sin(t / 170 + a.bob))) : a.alpha;
+    const opts = { flip: a.flip, scale: scale * pop, alpha };
     const dw = w * scale * pop;
     const dh = h * scale * pop;
-    const x = a.x - dw / 2;
-    const y = a.y - dh - jump - hop + breathe + floatY;
-    const opts = { flip: a.flip, scale: scale * pop, alpha: a.alpha };
     const animTime = reduced ? 0 : walking || a.float || a.type === 'boss' ? t + a.bob * 1000 : 0;
     if (a.draw?.anim) {
-      if (a.draw.px) drawFrame(ctx, `px:${a.draw.px}`, getAnimFrame(a.draw.anim, animTime), x, y, opts);
-      else drawAnim(ctx, a.draw.anim, animTime, x, y, opts);
+      if (a.draw.px) drawFrame(ctx, `px:${a.draw.px}`, getAnimFrame(a.draw.anim, animTime), -dw / 2, -dh, opts);
+      else drawAnim(ctx, a.draw.anim, animTime, -dw / 2, -dh, opts);
     } else if (a.draw?.sheet) {
-      drawFrame(ctx, a.draw.sheet, a.draw.index, x, y, opts);
+      drawFrame(ctx, a.draw.sheet, a.draw.index, -dw / 2, -dh, opts);
+    }
+    ctx.restore();
+  }
+
+  /** Lámpara con cono de luz, motas de polvo, brillo del monitor y vapor del café. */
+  function drawAmbient(state, t) {
+    const reduced = isReducedMotion();
+    const flicker = reduced ? 1 : 0.85 + 0.15 * Math.sin(t / 90) * Math.sin(t / 37) + (Math.random() < 0.01 ? -0.4 : 0);
+    // Lámpara colgante
+    ctx.fillStyle = '#3a4163';
+    ctx.fillRect(191, 18, 2, 12);
+    ctx.fillStyle = '#5a6075';
+    ctx.fillRect(186, 30, 12, 3);
+    ctx.fillStyle = `rgba(255, 230, 160, ${0.9 * flicker})`;
+    ctx.fillRect(189, 33, 6, 2);
+    // Cono de luz
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createLinearGradient(0, 34, 0, 200);
+    g.addColorStop(0, `rgba(255, 220, 150, ${0.16 * flicker})`);
+    g.addColorStop(1, 'rgba(255, 220, 150, 0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(187, 34);
+    ctx.lineTo(197, 34);
+    ctx.lineTo(262, 205);
+    ctx.lineTo(122, 205);
+    ctx.closePath();
+    ctx.fill();
+    // Motas de polvo dentro del cono
+    for (const m of motes) {
+      const inCone = Math.abs(m.x - 192) < (m.y - 34) * 0.42 + 6;
+      if (!inCone) continue;
+      ctx.fillStyle = `rgba(255, 240, 200, ${0.25 + 0.25 * Math.sin(t / 400 + m.p)})`;
+      ctx.fillRect(Math.round(m.x), Math.round(m.y), 1, 1);
+    }
+    // Brillo del monitor
+    const mg = ctx.createRadialGradient(203, 162, 1, 203, 162, 18);
+    mg.addColorStop(0, `rgba(50, 245, 200, ${0.18 + (typingT > 0 ? 0.12 : 0)})`);
+    mg.addColorStop(1, 'rgba(50, 245, 200, 0)');
+    ctx.fillStyle = mg;
+    ctx.fillRect(185, 144, 36, 36);
+    // Resplandor del cartel de neón (parpadeo ocasional)
+    const st = DEPARTMENT_STYLE[currentDepartment(state)];
+    const neon = reduced ? 1 : (Math.random() < 0.015 ? 0.15 : 0.75 + 0.25 * Math.sin(t / 300));
+    const ng = ctx.createRadialGradient(318, 35, 2, 318, 35, 60);
+    ng.addColorStop(0, `${st.signColor}${Math.round(40 * neon).toString(16).padStart(2, '0')}`);
+    ng.addColorStop(1, `${st.signColor}00`);
+    ctx.fillStyle = ng;
+    ctx.fillRect(258, 0, 120, 80);
+    ctx.restore();
+    // Vapor de la taza y de la cafetera
+    if (!reduced) {
+      for (let i = 0; i < 3; i++) {
+        const k2 = ((t / 1200) + i / 3) % 1;
+        ctx.fillStyle = `rgba(244, 244, 250, ${0.35 * (1 - k2)})`;
+        ctx.fillRect(Math.round(183 + Math.sin(k2 * 6 + i) * 1.5), Math.round(162 - k2 * 10), 1, 1);
+        if (state.unlockedDepartments.includes('exploitation')) {
+          ctx.fillRect(Math.round(257 + Math.sin(k2 * 6 + i) * 1.5), Math.round(146 - k2 * 12), 1, 1);
+        }
+      }
+    }
+  }
+
+  /** Edificios de los niveles 7–12 que no son personajes. */
+  function drawLateGame(state, t) {
+    const b = state.buildings;
+    const reduced = isReducedMotion();
+    const tt = reduced ? 0 : t;
+    // Imprenta de realidades: impresora dorada bajo la ventana.
+    if (b.realityPrinter > 0) {
+      drawAnim(ctx, 'printerPrint', tt * 1.5, 150, 112, { scale: 1.4 });
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.globalAlpha = 0.25 + 0.15 * Math.sin(tt / 250);
+      drawFrame(ctx, 'px:goldPrinter', 1, 150, 112, { scale: 1.4 });
+      ctx.restore();
+    }
+    // Cafetería del vacío: remolino oscuro con tazas en órbita.
+    if (b.voidCafeteria > 0) {
+      const cx = 64;
+      const cy = 56;
+      for (let r = 16; r > 0; r -= 3) {
+        ctx.fillStyle = r % 2 ? '#05050a' : '#1a1030';
+        ctx.beginPath();
+        const rr = Math.max(0.5, r + Math.sin(tt / 300 + r) * 1.2);
+        ctx.ellipse(cx, cy, rr, rr * 0.7, tt / 900, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      for (let i = 0; i < 3; i++) {
+        const a = tt / 800 + (i * Math.PI * 2) / 3;
+        drawFrame(ctx, 'px:coffee', 0, cx + Math.cos(a) * 24 - 5, cy + Math.sin(a) * 12 - 6, { scale: 0.6 });
+      }
+    }
+    // Bandeja de la entropía: sobres cayendo por toda la oficina.
+    if (b.entropyInbox > 0) {
+      for (const e of envelopes) {
+        if (e.y < 0) continue;
+        ctx.fillStyle = '#f4f4fa';
+        ctx.fillRect(Math.round(e.x), Math.round(e.y), 6, 4);
+        ctx.fillStyle = '#ff6b35';
+        ctx.fillRect(Math.round(e.x) + 1, Math.round(e.y) + 1, 4, 1);
+      }
+    }
+    // Agencias de viaje en el tiempo: reloj que gira hacia atrás.
+    if (b.timeTravelAgency > 0) {
+      ctx.fillStyle = '#32f5c8';
+      ctx.beginPath();
+      ctx.arc(300, 70, 11, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#0b0c14';
+      ctx.beginPath();
+      ctx.arc(300, 70, 9, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#32f5c8';
+      ctx.lineWidth = 1;
+      const ang = -tt / 400;
+      ctx.beginPath();
+      ctx.moveTo(300, 70);
+      ctx.lineTo(300 + Math.cos(ang) * 7, 70 + Math.sin(ang) * 7);
+      ctx.stroke();
+    }
+  }
+
+  /** Ondas de los clics y folios volando a la pila. */
+  function drawClickFx() {
+    for (const r of ripples) {
+      const k2 = r.t / 0.5;
+      ctx.strokeStyle = `rgba(50, 245, 200, ${0.8 * (1 - k2)})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.ellipse(r.x, r.y, 4 + k2 * 18, (4 + k2 * 18) * 0.6, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    // Pila de folios en el escritorio
+    const stack = Math.floor(paperStack);
+    for (let i = 0; i < stack; i++) {
+      ctx.fillStyle = i % 2 ? '#e6e6f0' : '#f4f4fa';
+      ctx.fillRect(222 + (i % 3 === 0 ? 1 : 0), 166 - i, 8, 1);
+    }
+    for (const f of flyingPapers) {
+      const k2 = Math.min(1, f.t);
+      const x = f.x0 + (224 - f.x0) * k2;
+      const y = f.y0 + (165 - stack - f.y0) * k2 - Math.sin(k2 * Math.PI) * 20;
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(k2 * 6 + f.r);
+      ctx.fillStyle = '#f4f4fa';
+      ctx.fillRect(-2, -3, 4, 5);
+      ctx.restore();
     }
   }
 
@@ -645,6 +886,7 @@ export function createScene(canvas, { getState, isReducedMotion }) {
     ctx.fillRect(-4, 0, SCENE_W + 8, SCENE_H);
     ctx.drawImage(background, 0, 0, SCENE_W, SCENE_H);
     drawWindow(state, t);
+    drawLateGame(state, t);
     drawPrinters(state, t);
     drawMachines(state, t);
     drawDecor(state);
@@ -659,6 +901,8 @@ export function createScene(canvas, { getState, isReducedMotion }) {
     if ((state.buildings.apocalypseCallCenter || 0) > 0) {
       drawAnim(ctx, 'dragonIdle', isReducedMotion() ? 0 : t, 312, 140, { flip: true });
     }
+    drawAmbient(state, t);
+    drawClickFx();
     sorted.filter((a) => a.type === 'pigeon').forEach((p) => drawPigeon(p, t));
     for (const e of effects) drawAnim(ctx, e.anim, e.t, e.x, e.y, { scale: e.scale });
     drawBubbles();
@@ -697,14 +941,20 @@ export function createScene(canvas, { getState, isReducedMotion }) {
     /** Reinicio completo (prestigio / carga de partida). */
     reset(state) {
       actors.length = 0;
+      paperStack = 0;
       bubbles.length = 0;
       effects.length = 0;
       backgroundKey = '';
       reconcile(state);
     },
     /** Reacción a un clic del jugador. */
-    onPlayerClick() {
+    onPlayerClick(sceneX, sceneY) {
       typingT = 0.15;
+      if (!isReducedMotion()) {
+        if (Number.isFinite(sceneX) && Number.isFinite(sceneY)) ripples.push({ x: sceneX, y: sceneY, t: 0 });
+        if (flyingPapers.length < 8) flyingPapers.push({ x0: 205, y0: 158, t: 0, r: rand(0, 3) });
+      }
+      if (paperStack >= 14) paperStack = 6; // alguien se lleva la pila al archivo
       if (screenLines.length >= 5) screenLines.shift();
       screenLines.push(Math.floor(rand(3, 8)));
     },

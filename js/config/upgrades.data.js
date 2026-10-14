@@ -165,6 +165,25 @@ export const UPGRADES = [
   tier('acPressOne', 'Pulse 1 para acabar con todo', 'La opción 2 es «hablar con un operador». Nadie la elige. Centros de atención ×3.', 'apocalypseCallCenter', 25, 2e21, 3),
   tier('acImportant', 'Su apocalipsis es importante para nosotros', 'Le atenderemos en cuanto acabe el mundo. Centros de atención ×2.', 'apocalypseCallCenter', 10, 20000000000000000000, 2),
 
+  // Edificios de los niveles 7–12
+  tier('ttaRefund', 'Reembolso de dietas del Jurásico', 'Los recibos están en papiro, pero cuentan. Agencias temporales ×2.', 'timeTravelAgency', 1, 2e20, 2),
+  tier('ttaLoop', 'Billete de ida y vuelta (y vuelta, y vuelta…)', 'El viaje más rentable es el que no acaba. Agencias temporales ×2.', 'timeTravelAgency', 10, 2e21, 2),
+  tier('ttaParadox', 'Abuelo asegurado a todo riesgo', 'Ya no hay paradojas que paralicen el trámite. Agencias temporales ×3.', 'timeTravelAgency', 25, 2e23, 3),
+  tier('qnSuperposition', 'Sello en superposición', 'Aprobado y denegado hasta que alguien mira. Notarías ×2.', 'quantumNotary', 1, 2e22, 2),
+  tier('qnEntangled', 'Firmas entrelazadas', 'Firmas aquí y se firma en otra galaxia. Notarías ×2.', 'quantumNotary', 10, 2e23, 2),
+  tier('qnTunnel', 'Efecto túnel en la ventanilla', 'Atraviesas la cola sin hacerla. Notarías ×3.', 'quantumNotary', 25, 2e25, 3),
+  tier('rpDraft', 'Borradores de realidades', 'Se imprimen a una cara para ahorrar universos. Imprentas ×2.', 'realityPrinter', 1, 2e24, 2),
+  tier('rpColor', 'Realidades a todo color', 'El gris corporativo era opcional. Imprentas ×2.', 'realityPrinter', 10, 2e25, 2),
+  tier('rpDuplex', 'Impresión a doble realidad', 'Por un lado este universo, por el otro el siguiente. Imprentas ×3.', 'realityPrinter', 25, 2e27, 3),
+  tier('vcDecaf', 'Descafeinado de antimateria', 'Sin cafeína, sin materia, sin quejas. Cafeterías ×2.', 'voidCafeteria', 1, 2e26, 2),
+  tier('vcLoyalty', 'Tarjeta de fidelidad del vacío', 'El décimo café no existe. Ninguno existe. Cafeterías ×2.', 'voidCafeteria', 10, 2e27, 2),
+  tier('vcBarista', 'Barista primordial', 'Lleva sirviendo desde antes del tiempo. Cafeterías ×3.', 'voidCafeteria', 25, 2e29, 3),
+  tier('psDividends', 'Dividendos en forma de estrellas', 'Pagan en gigantes rojas. Accionistas ×2.', 'primordialShareholders', 1, 2e28, 2),
+  tier('psVote', 'Voto ponderado por masa', 'Quien tiene un agujero negro, decide. Accionistas ×2.', 'primordialShareholders', 10, 2e29, 2),
+  tier('psSplit', 'Desdoblamiento de acciones cósmicas', 'Cada acción se divide en dos universos. Accionistas ×3.', 'primordialShareholders', 25, 2e31, 3),
+  tier('eiZero', 'Bandeja de entrada cero (teóricamente)', 'Un estado imposible que se persigue igual. Bandejas ×2.', 'entropyInbox', 1, 2e30, 2),
+  tier('eiFilters', 'Filtros antispam del caos', 'El caos sigue llegando, pero ordenado. Bandejas ×2.', 'entropyInbox', 10, 2e31, 2),
+
   // ── Producción global ───────────────────────────────────────────────
   {
     id: 'meetingsBreed',
@@ -288,6 +307,16 @@ export const UPGRADES = [
     cost: 1e21,
     requirements: [{ type: 'department', id: 'adminGod' }, { type: 'building', id: 'apocalypseCallCenter', count: 10 }],
     effects: [{ type: 'globalMult', value: 3 }],
+    tags: ['ending'],
+  },
+  {
+    id: 'form405C',
+    name: 'Formulario 405-C: Apelación del fin del mundo',
+    description: 'Recurres el apocalipsis aprobado. El universo, por primera vez, se queda sin palabras. Producción total ×5.',
+    category: 'endgame',
+    cost: 1e34,
+    requirements: [{ type: 'department', id: 'endOfTime' }, { type: 'building', id: 'entropyInbox', count: 10 }],
+    effects: [{ type: 'globalMult', value: 5 }],
     tags: ['ending'],
   },
 ];

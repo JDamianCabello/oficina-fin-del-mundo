@@ -2,7 +2,7 @@
 
 import { el, $, clear, setText, setAttr, setDisabled, toggleClass } from '../dom.js';
 import { getUnlockedBuildings, getNextLockedBuilding } from '../../systems/buildings.js';
-import { quoteBuilding, getBuildingProduction, getBuildingUnitProduction, getTotalRate } from '../../core/economy.js';
+import { quoteBuilding, getBuildingProduction, getBuildingUnitProduction, getTotalRate, getNextMilestone } from '../../core/economy.js';
 import { DEPARTMENTS_BY_ID } from '../../config/departments.data.js';
 import { describeRequirementWithProgress } from '../../core/progression.js';
 import { formatNumber, formatDuration } from '../../utils/format.js';
@@ -38,6 +38,13 @@ export function createBuildingsView({ getState, actions }) {
       const prod = el('div', { class: 'building__prod' });
       const cost = el('span', { class: 'cost' });
       const reason = el('div', { class: 'building__reason' });
+      const chips = def.milestones.map((m) => el('span', { class: 'milestone', title: `${m.count} unidades: ${m.text}`, text: m.count }));
+      const nextMilestone = el('span', { class: 'building__milestone-next' });
+      const milestones = el('div', { class: 'building__milestones', 'aria-label': 'Hitos del edificio' }, [
+        el('span', { class: 'building__milestones-label', text: 'Hitos' }),
+        ...chips,
+        nextMilestone,
+      ]);
       const button = el('button', { type: 'button', class: 'btn btn--primary', onClick: () => actions.buyBuilding(def.id) });
       const card = el('li', { class: 'building', dataset: { id: def.id } }, [
         el('div', { class: 'building__icon' }, [
@@ -48,13 +55,14 @@ export function createBuildingsView({ getState, actions }) {
           el('div', { class: 'building__name', text: def.name }),
           el('div', { class: 'building__desc', text: def.description }),
           prod,
+          milestones,
         ]),
         el('div', { class: 'building__buy' }, [button, el('div', {}, [cost, reason])]),
       ]);
       if (!seen.has(def.id) && seen.size > 0) card.classList.add('building--new');
       seen.add(def.id);
       list.append(card);
-      refs.set(def.id, { card, count, prod, cost, reason, button, def });
+      refs.set(def.id, { card, count, prod, cost, reason, button, def, chips, nextMilestone });
     }
     const next = getNextLockedBuilding(state);
     lockedRef = null;
@@ -84,6 +92,9 @@ export function createBuildingsView({ getState, actions }) {
     for (const [id, r] of refs) {
       const owned = state.buildings[id] || 0;
       setText(r.count, owned);
+      r.def.milestones.forEach((m, i) => r.chips[i].dataset.reached = String(owned >= m.count));
+      const nm = getNextMilestone(state, id);
+      setText(r.nextMilestone, nm ? `Con ${nm.count}: ${nm.text}` : '¡Todos los hitos conseguidos!');
       const unit = getBuildingUnitProduction(state, id);
       const total = getBuildingProduction(state, id);
       setText(r.prod, owned > 0 ? `Produce ${formatNumber(total)}/s · ${formatNumber(unit)}/s c/u` : `Cada uno: ${formatNumber(unit)}/s`);

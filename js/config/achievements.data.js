@@ -42,6 +42,14 @@ export const ACHIEVEMENTS = [
     reward: { effects: [{ type: 'buildingCostMult', value: 0.95 }], text: 'Edificios un 5 % más baratos.' } },
 
   { id: 'deptHell', name: 'Bienvenido al infierno (de RR. HH.)', description: 'Desbloquea Recursos Humanos del Infierno.', condition: { type: 'department', id: 'hellHR' } },
+  { id: 'milestones10', name: 'Hitos de la empresa', description: 'Alcanza 10 hitos de edificios a la vez (10, 25, 50 o 100 unidades).', condition: { type: 'milestones', value: 10 } },
+  { id: 'milestones40', name: 'Cultura corporativa de hitos', description: 'Alcanza 40 hitos de edificios a la vez.', condition: { type: 'milestones', value: 40 },
+    reward: { effects: [{ type: 'globalMult', value: 1.25 }], text: 'Producción total ×1,25 para siempre.' } },
+  { id: 'deptTime', name: 'Dietas del Jurásico', description: 'Desbloquea el nivel 7: Oficina de Gastos Temporales.', condition: { type: 'department', id: 'timeOffice' } },
+  { id: 'deptVoid', name: 'Café para la nada', description: 'Desbloquea el nivel 10: la Sede en el Vacío Absoluto.', condition: { type: 'department', id: 'voidHQ' } },
+  { id: 'deptEnd', name: 'El tiempo era un trámite', description: 'Desbloquea el nivel 12: El Despacho al Final del Tiempo.', condition: { type: 'department', id: 'endOfTime' } },
+  { id: 'trueEnding', name: 'Apelación estimada', description: 'Compra el Formulario 405-C y recurre el fin del mundo.', condition: { type: 'upgrade', id: 'form405C' },
+    reward: { effects: [{ type: 'globalMult', value: 3 }], text: 'Producción total ×3 para siempre.' } },
   { id: 'deptGod', name: 'Dios tiene un supervisor', description: 'Desbloquea el despacho del Dios Administrativo.', condition: { type: 'department', id: 'adminGod' } },
 
   { id: 'prestige1', name: 'Capitalismo dimensional', description: 'Asciende por primera vez.', condition: { type: 'prestiges', value: 1 },

@@ -57,11 +57,18 @@ export function createMissionsView({ getState, actions }) {
     clear(depList);
     for (const d of DEPARTMENTS) {
       const unlocked = state.unlockedDepartments.includes(d.id);
-      depList.append(el('li', { class: 'department-item', dataset: { unlocked: String(unlocked) } }, [
+      const isNext = getNextDepartment(state)?.id === d.id;
+      depList.append(el('li', { class: `department-item${isNext ? ' department-item--next' : ''}`, dataset: { unlocked: String(unlocked) } }, [
         el('div', { class: 'department-item__name', text: `${d.title}` }),
         el('div', { class: 'department-item__desc', text: `${d.name}: ${d.description}` }),
         !unlocked && d.requirements.length
-          ? el('div', { class: 'department-item__desc', text: `Requisitos: ${d.requirements.map((r) => describeRequirementWithProgress(state, r)).join(' · ')}` })
+          ? el('div', { class: 'department-item__how', text: `Cómo desbloquearlo: ${d.howToUnlock}` })
+          : null,
+        !unlocked && d.requirements.length
+          ? el('div', { class: 'department-item__desc', text: `Progreso: ${d.requirements.map((r) => describeRequirementWithProgress(state, r)).join(' · ')}` })
+          : null,
+        unlocked && d.finalGoal && !state.upgrades.includes('form405C')
+          ? el('div', { class: 'department-item__how', text: d.finalGoal })
           : null,
       ]));
     }
@@ -106,27 +113,31 @@ export function createMissionsView({ getState, actions }) {
     let title;
     let items = [];
     let note = '';
+    let how = '';
     if (next) {
-      label = 'Objetivo: siguiente departamento';
+      label = `Cómo pasar al nivel ${next.level}`;
       title = next.title;
+      how = next.howToUnlock;
       items = next.requirements.map((r) => [checkRequirement(state, r), describeRequirementWithProgress(state, r)]);
-    } else if (!state.upgrades.includes('form404B')) {
-      const final = UPGRADES_BY_ID.form404B;
-      const cost = getUpgradeCost(state, 'form404B');
-      label = 'Meta final';
-      title = 'Firmar el formulario 404-B';
+    } else if (!state.upgrades.includes('form405C')) {
+      const finalDept = DEPARTMENTS[DEPARTMENTS.length - 1];
+      const final = UPGRADES_BY_ID.form405C;
+      const cost = getUpgradeCost(state, 'form405C');
+      label = 'Meta final del juego';
+      title = 'Firmar el Formulario 405-C';
+      how = finalDept.finalGoal;
       items = final.requirements.map((r) => [checkRequirement(state, r), describeRequirementWithProgress(state, r)]);
       items.push([state.resources.paperwork >= cost, `Reunir ${formatNumber(cost)} de papeleo`]);
     } else {
       label = 'Meta';
-      title = 'El fin del mundo está aprobado. ¿Y ahora?';
+      title = 'Has recurrido el fin del mundo. ¿Y ahora?';
       note = canMerge(state)
         ? `Fusiónate con el multiverso (pestaña Prestigio) para ganar ${formatNumber(getMergerGain(state))} Acciones.`
         : canPrestige(state)
           ? `Asciende para ganar ${formatNumber(getPrestigeGain(state))} de Influencia y acercarte a tu próxima Acción.`
           : 'Completa los logros, talentos y ventajas del Consejo pendientes.';
     }
-    const k = JSON.stringify([label, title, items, note]);
+    const k = JSON.stringify([label, title, how, items, note]);
     if (k === objectiveKey) return;
     objectiveKey = k;
     clear(objective);
@@ -134,6 +145,7 @@ export function createMissionsView({ getState, actions }) {
     objective.append(...[
       el('div', { class: 'objective__label', text: label }),
       el('div', { class: 'objective__title', text: title }),
+      how ? el('p', { class: 'objective__how', text: how }) : null,
       items.length ? reqs : null,
       note ? el('p', { class: 'mission__desc', text: note }) : null,
     ].filter(Boolean));

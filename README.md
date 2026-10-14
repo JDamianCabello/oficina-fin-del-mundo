@@ -36,20 +36,40 @@ o Safari recientes).
 - **⚙ Ajustes**: partículas, reducir movimiento, sonido, frecuencia de eventos,
   notación de números, guardar, exportar, importar y borrar.
 
-### Progresión
+### Progresión: 12 niveles
 
-1. **El Sótano** (nivel 1): impresoras y becarios.
-2. **Planta de Explotación Laboral** (nivel 2): palomas contables, misiones y
-   eventos aleatorios.
-3. **Recursos Humanos del Infierno** (nivel 3): clones del jefe, reactores,
-   sinergias y árbol de talentos.
-4. **Multinacional Interdimensional** (nivel 4): **prestigio** (Ascender),
-   formularios dorados y máquinas de otras dimensiones.
-5. **Despacho del Dios Administrativo** (nivel 5): edificios cósmicos y el
-   formulario 404-B (final de la historia; se puede seguir jugando).
+Cada nivel explica en la tarjeta **«Objetivo»** (panel derecho) y en la pestaña
+**Misiones → Departamentos** qué hay que hacer exactamente para superarlo.
 
-6. **Consejo de Administración del Multiverso** (nivel 6): se desbloquea al
-   firmar el 404-B y abre la **Fusión multiversal** (segunda capa de prestigio).
+| Nivel | Departamento | Cómo se desbloquea | Novedad |
+|---|---|---|---|
+| 1 | El Sótano | — | Impresoras y becarios |
+| 2 | Planta de Explotación Laboral | 5 becarios + 1.500 de papeleo en el ciclo | Palomas, misiones, eventos |
+| 3 | Recursos Humanos del Infierno | 20 palomas + 500 mil en el ciclo | Clones, reactores, sinergias, talentos |
+| 4 | Multinacional Interdimensional | 15 reactores + 200 M en el ciclo | **Ascender** (prestigio), formularios dorados |
+| 5 | Despacho del Dios Administrativo | 2 ascensos + 10 impresoras dimensionales | Edificios cósmicos |
+| 6 | Consejo de Administración | Comprar LA MEJORA «Formulario 404-B» | **Fusión multiversal** (2.ª capa) |
+| 7 | Oficina de Gastos Temporales | 1 fusión + 10 Centros de Atención al Apocalipsis | Agencias de viajes en el tiempo · +8 h offline |
+| 8 | Burocracia Cuántica | 25 agencias temporales + 10 Sp en el ciclo | Notarías cuánticas · +5 % críticos |
+| 9 | Realidades Alternativas | 25 notarías + 1 Oc en el ciclo + 3 fusiones | Imprentas de realidades · dorados +25 % frecuentes |
+| 10 | Sede en el Vacío Absoluto | 25 imprentas + 100 Oc + 6 ventajas del Consejo | Cafeterías del Vacío · +25 clics automáticos/s |
+| 11 | Accionistas Primordiales | 25 cafeterías + 100 No en el ciclo | Accionistas primordiales · Influencia ×1,5 |
+| 12 | El Despacho al Final del Tiempo | 25 accionistas + 1 Dc + 6 fusiones | Bandejas de la entropía · producción ×2 |
+
+Meta final: LA MEJORA **«Formulario 405-C: Apelación del fin del mundo»** (10
+bandejas de la entropía y 10 Dc de papeleo).
+
+### Hitos de los edificios
+
+Los 19 edificios tienen hitos automáticos al llegar a **10, 25, 50 y 100**
+unidades, que mejoran **otras** partes de la oficina (se ven como ★ en cada tarjeta):
+
+- **10** → el edificio anterior de la cadena produce +15 % (las impresoras: clics +25 %).
+- **25** → el edificio siguiente produce +10 %.
+- **50** → una ventaja propia (p. ej. impresoras: +5 por clic; palomas: formularios
+  dorados más frecuentes; reactores: +5 % offline; Recursos Inhumanos: edificios
+  un 3 % más baratos…).
+- **100** → +3 % de producción total.
 
 Ascender reinicia papeleo, edificios, mejoras y misiones a cambio de
 **Influencia**, que da un bonus permanente de producción y compra talentos.
@@ -57,8 +77,7 @@ Se conservan logros, talentos, Influencia, departamentos y estadísticas.
 
 Fusionarse (segunda capa) reinicia además la Influencia y los talentos a cambio
 de **Acciones** (◆): +50 % de producción por cada acción ganada y 8 ventajas
-permanentes del Consejo de Administración (capital inicial, descuentos,
-automatización, conservar talentos…).
+permanentes del Consejo de Administración.
 Fórmula: `Acciones = floor(cbrt(Influencia ganada en esta fusión / 20000))`.
 
 ## Partidas guardadas
@@ -100,7 +119,7 @@ El juego se publica en GitHub Pages: https://jdamiancabello.github.io/oficina-fi
 Requisitos: Node.js 18+ (probado con Node 22). No hay dependencias que instalar.
 
 ```bash
-npm test            # 83 pruebas unitarias (node --test), incluida una regresión de balance
+npm test            # 87 pruebas unitarias (node --test), incluida una regresión de balance
 npm run test:e2e    # Chromium real con Playwright: prueba de humo (37) + actualización automática (6)
 npm run balance     # simulación de balance: node tests/tools/balance.mjs [horas] [informe-min] [estrategia]
 npm run lint        # ESLint con reglas básicas (eslint.config.js)

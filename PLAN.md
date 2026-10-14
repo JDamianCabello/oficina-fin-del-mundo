@@ -101,6 +101,36 @@ Consejo completo se compraba en 25 minutos; con 20000 y costes 1–13:
 | Fusión n.º 3 | ~5 h 55 min (+6 ◆) |
 | Consejo completo (42 ◆ en total) | > 12 h |
 
+## Fase 12: más edificios, hitos y 12 niveles (sesión 3)
+
+| Tarea | Estado |
+|---|---|
+| 6 edificios nuevos (19 en total) con sus mejoras de nivel 1/10/25 | ✅ |
+| Hitos por cantidad (10/25/50/100) en todos los edificios, que mejoran otros edificios, clics, offline, eventos… | ✅ |
+| 12 niveles (6 nuevos con ventaja permanente cada uno) | ✅ |
+| Cada nivel explica en texto claro cómo superarlo («Objetivo» y lista de departamentos); el 6 dice que hace falta LA MEJORA del formulario 404-B | ✅ |
+| Meta final nueva: Formulario 405-C; aviso de mejoras clave en la pestaña Mejoras | ✅ |
+| Animaciones: sombras, aparición elástica, estirar/encoger al andar y saltar, lámpara con cono de luz y polvo, vapor, neón que parpadea, ondas al clicar, folios que vuelan a una pila, monedas que giran, papeles que ondean, notificaciones y botones más suaves | ✅ |
+
+Simulación equilibrada (IA óptima, 24 h):
+
+| Hito | Tiempo |
+|---|---|
+| Nivel 4 / primer ascenso | 43 min / 57 min |
+| Nivel 5 | 1 h 27 min |
+| Formulario 404-B · nivel 6 | 3 h 13 min |
+| Nivel 7 | 3 h 31 min |
+| Nivel 8 | 4 h 40 min |
+| Nivel 9 | 4 h 57 min |
+| Nivel 10 | 6 h 02 min |
+| Nivel 11 | 8 h 54 min |
+| Nivel 12 | 10 h 51 min |
+| Formulario 405-C (final) | 13 h 25 min |
+
+Los hitos se suavizaron tras una primera simulación (con +25 %/+5 % el 404-B
+llegaba a las 2 h 49 min) y los requisitos de los niveles 8–12 se espaciaron
+porque varios se desbloqueaban a la vez.
+
 ## Ideas para siguientes sesiones
 
 - Tercera capa o desafíos (ciclos con reglas especiales).

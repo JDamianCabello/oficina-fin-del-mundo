@@ -16,27 +16,33 @@ export function createUpgradesView({ getState, actions }) {
   let refs = new Map();
   let finalRef = null;
 
-  const FINAL_ID = 'form404B';
-  const FINAL_LABEL = '★ Final · la última mejora del juego';
+  // Mejoras clave que se anuncian antes de poder comprarlas.
+  const KEY_UPGRADES = [
+    { id: 'form404B', fromDept: 'multinational', label: '★ Mejora clave · desbloquea el nivel 6',
+      text: 'Firmarlo termina la primera historia y desbloquea el nivel 6 (Consejo de Administración). Aparecerá aquí para comprarlo cuando cumplas estos requisitos:' },
+    { id: 'form405C', fromDept: 'timeOffice', label: '★ Final · la última mejora del juego',
+      text: 'La última mejora del juego: recurrir el fin del mundo. Aparecerá aquí para comprarla cuando cumplas estos requisitos:' },
+  ];
+  const KEY_BY_ID = Object.fromEntries(KEY_UPGRADES.map((k) => [k.id, k]));
 
-  /** El aviso de la última mejora se muestra desde el nivel 4 hasta comprarla. */
-  function showFinalTeaser(state, available) {
-    return isDepartmentUnlocked(state, 'multinational')
-      && !state.upgrades.includes(FINAL_ID)
-      && !available.some((u) => u.id === FINAL_ID);
+  /** Primera mejora clave pendiente que hay que anunciar (o null). */
+  function teaserFor(state, available) {
+    return KEY_UPGRADES.find((k) => isDepartmentUnlocked(state, k.fromDept)
+      && !state.upgrades.includes(k.id)
+      && !available.some((u) => u.id === k.id)) ?? null;
   }
 
-  function buildFinalTeaser() {
-    const up = UPGRADES_BY_ID[FINAL_ID];
+  function buildFinalTeaser(key) {
+    const up = UPGRADES_BY_ID[key.id];
     const reqs = el('ul', { class: 'objective__reqs' });
     const cost = el('span', { class: 'cost cost--no' });
-    list.append(el('li', { class: 'upgrade upgrade--final upgrade--locked', 'aria-label': `Última mejora del juego, bloqueada: ${up.name}` }, [
+    list.append(el('li', { class: 'upgrade upgrade--final upgrade--locked', 'aria-label': `${key.label}, bloqueada: ${up.name}` }, [
       el('div', {}, [
-        el('div', { class: 'upgrade__cat', text: `🔒 ${FINAL_LABEL}` }),
+        el('div', { class: 'upgrade__cat', text: `🔒 ${key.label}` }),
         el('div', { class: 'upgrade__name', text: up.name }),
       ]),
       el('div', { class: 'upgrade__side' }, [cost]),
-      el('p', { class: 'upgrade__desc', text: 'Firmarlo termina la historia y desbloquea el nivel 6. Aparecerá aquí para comprarlo cuando cumplas estos requisitos:' }),
+      el('p', { class: 'upgrade__desc', text: key.text }),
       reqs,
     ]));
     finalRef = { reqs, cost, up, key: '' };
@@ -44,7 +50,7 @@ export function createUpgradesView({ getState, actions }) {
 
   function updateFinalTeaser(state) {
     if (!finalRef) return;
-    setText(finalRef.cost, formatNumber(getUpgradeCost(state, FINAL_ID)));
+    setText(finalRef.cost, formatNumber(getUpgradeCost(state, finalRef.up.id)));
     const items = finalRef.up.requirements.map((r) => [checkRequirement(state, r), describeRequirementWithProgress(state, r)]);
     const k = JSON.stringify(items);
     if (k === finalRef.key) return;
@@ -64,10 +70,10 @@ export function createUpgradesView({ getState, actions }) {
       const cost = el('span', { class: 'cost' });
       const reason = el('span', { class: 'building__reason' });
       const button = el('button', { type: 'button', class: 'btn btn--magenta btn--small', text: 'Comprar', onClick: () => actions.buyUpgrade(up.id) });
-      const isFinal = up.id === FINAL_ID;
-      const card = el('li', { class: `upgrade${isFinal ? ' upgrade--final' : ''}`, dataset: { id: up.id } }, [
+      const keyInfo = KEY_BY_ID[up.id];
+      const card = el('li', { class: `upgrade${keyInfo ? ' upgrade--final' : ''}`, dataset: { id: up.id } }, [
         el('div', {}, [
-          el('div', { class: 'upgrade__cat', text: isFinal ? FINAL_LABEL : UPGRADE_CATEGORIES[up.category] ?? up.category }),
+          el('div', { class: 'upgrade__cat', text: keyInfo ? keyInfo.label : UPGRADE_CATEGORIES[up.category] ?? up.category }),
           el('div', { class: 'upgrade__name', text: up.name }),
         ]),
         el('div', { class: 'upgrade__side' }, [cost, button]),
@@ -77,7 +83,8 @@ export function createUpgradesView({ getState, actions }) {
       list.append(card);
       refs.set(up.id, { card, cost, button, reason, up });
     }
-    if (showFinalTeaser(state, available)) buildFinalTeaser();
+    const teaser = teaserFor(state, available);
+    if (teaser) buildFinalTeaser(teaser);
   }
 
   function buildOwned(state) {
@@ -89,7 +96,7 @@ export function createUpgradesView({ getState, actions }) {
 
   function update(state) {
     const available = getAvailableUpgrades(state);
-    const k = `${available.map((u) => u.id).join(',')}|${showFinalTeaser(state, available)}`;
+    const k = `${available.map((u) => u.id).join(',')}|${teaserFor(state, available)?.id ?? ''}`;
     if (k !== key) {
       key = k;
       build(state, available);

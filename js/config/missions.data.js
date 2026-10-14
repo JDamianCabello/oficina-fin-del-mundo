@@ -38,6 +38,10 @@ export const MISSIONS = [
   { id: 'mPaper1T', name: 'Un billón de trámites', description: 'Produce 1 T de documentos en este ciclo.', requirement: { type: 'cycleTotal', value: 1e12 }, reward: { ppsSeconds: 120, min: 1e10 } },
   { id: 'mGod1', name: 'Dios en el rack', description: 'Ten un servidor que contiene a Dios.', requirement: { type: 'building', id: 'godServer', count: 1 }, reward: { ppsSeconds: 120, min: 1e11 } },
   { id: 'mAC1', name: 'Pulse 1 para el apocalipsis', description: 'Ten un centro de atención al apocalipsis.', requirement: { type: 'building', id: 'apocalypseCallCenter', count: 1 }, reward: { ppsSeconds: 150, min: 1e13 } },
+  { id: 'mTTA1', name: 'Reserva un viaje al pasado', description: 'Ten una Agencia de Viajes en el Tiempo.', requirement: { type: 'building', id: 'timeTravelAgency', count: 1 }, reward: { ppsSeconds: 150, min: 1e18 } },
+  { id: 'mQN1', name: 'Notario de guardia cuántica', description: 'Ten una Notaría cuántica.', requirement: { type: 'building', id: 'quantumNotary', count: 1 },
+    reward: { temp: { id: 'quantumRush', label: 'Prisa cuántica', seconds: 60, effects: [{ type: 'globalMult', value: 3 }] } } },
+  { id: 'mEI1', name: 'Contesta el primer correo del fin', description: 'Ten una Bandeja de entrada de la entropía.', requirement: { type: 'building', id: 'entropyInbox', count: 1 }, reward: { ppsSeconds: 200, min: 1e28 } },
 ];
 
 export const MISSION_IDS = MISSIONS.map((m) => m.id);

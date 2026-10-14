@@ -2,7 +2,8 @@
 // arranca los tres bucles (simulación, interfaz y animación).
 
 import { createInitialState } from './core/state.js';
-import { performClick, invalidateModifiers } from './core/economy.js';
+import { performClick, invalidateModifiers, getReachedMilestones } from './core/economy.js';
+import { BUILDINGS_BY_ID } from './config/buildings.data.js';
 import { on } from './core/events.js';
 import { createGameLoop, simulateStep, runChecks } from './core/gameLoop.js';
 import { DEPARTMENTS_BY_ID } from './config/departments.data.js';
@@ -97,9 +98,9 @@ function markTopics(...topics) {
   topics.forEach((t) => pendingTopics.add(t));
 }
 
-function doClick(x, y) {
+function doClick(x, y, sceneX = 205, sceneY = 160) {
   const { amount, crit } = performClick(state);
-  scene.onPlayerClick();
+  scene.onPlayerClick(sceneX, sceneY);
   play(crit ? 'crit' : 'click');
   emitParticles('paper', x, y, crit ? 8 : 3);
   emitText(`+${formatNumber(amount)}${crit ? '!' : ''}`, x, y - 10, { color: crit ? '#FFD166' : '#32F5C8', size: crit ? 30 : 22 });
@@ -110,6 +111,7 @@ function doClick(x, y) {
 
 const actions = {
   buyBuilding(id) {
+    const before = getReachedMilestones(state, id).length;
     const r = buyBuildingSystem(state, id, state.settings.buyAmount);
     if (!r.ok) {
       play('error');
@@ -118,6 +120,15 @@ const actions = {
     play('buy');
     emitParticles('coin', lastPointer.x, lastPointer.y, 8);
     scene.onBuildingBought(id);
+    // Hitos alcanzados con esta compra.
+    for (const m of getReachedMilestones(state, id).slice(before)) {
+      const name = BUILDINGS_BY_ID[id].name;
+      play('achievement');
+      toast({ title: `★ Hito: ${m.count} × ${name}`, text: m.text, icon: '★', type: 'achievement', duration: 5000 });
+      news(`Hito de ${name} (${m.count}): ${m.text}`);
+      emitParticles('star', lastPointer.x, lastPointer.y, 20);
+      scene.celebrate(1);
+    }
     markTopics('buildings');
     renderer.frame(true);
   },
@@ -381,7 +392,7 @@ function wireInput() {
     const { x, y } = scene.toSceneCoords(e.clientX, e.clientY);
     const pokes = scene.pokePigeon(x, y);
     if (pokes >= 20) discoverSecret(state, 'pigeonPoke');
-    doClick(e.clientX, e.clientY);
+    doClick(e.clientX, e.clientY, x, y);
   });
 
   $('#btn-stamp').addEventListener('click', (e) => {

@@ -77,7 +77,8 @@ test('quoteBuilding con máximo y 0 asequibles muestra el coste de 1', () => {
 });
 
 test('producción por segundo base de los cinco edificios iniciales', () => {
-  const s = makeState({ buildings: { printer: 10, intern: 2, pigeon: 1, bossClone: 1, bureaucracyReactor: 1 }, departments: 'all' });
+  // Niveles 1–5 (sin ventajas permanentes); 10 impresoras solo activan un hito de clics.
+  const s = makeState({ buildings: { printer: 10, intern: 2, pigeon: 1, bossClone: 1, bureaucracyReactor: 1 }, departments: ['exploitation', 'hellHR', 'multinational', 'adminGod'] });
   const expected = 10 * 0.2 + 2 * 1 + 8 + 50 + 400;
   assert.ok(approx(getPps(s), expected));
 });
@@ -104,8 +105,9 @@ test('el bonus de Influencia es 2 % por punto ganado (no por punto disponible)',
 });
 
 test('sinergias: becarios +3 % por paloma', () => {
-  const s = makeState({ buildings: { intern: 10, pigeon: 10 }, upgrades: ['synPigeonIntern'], departments: 'all' });
-  const internProd = 1 * 10 * (1 + 0.03 * 10);
+  const s = makeState({ buildings: { intern: 10, pigeon: 10 }, upgrades: ['synPigeonIntern'], departments: ['exploitation', 'hellHR'] });
+  // Hito de 10 palomas: becarios +15 %.
+  const internProd = 1 * 10 * 1.15 * (1 + 0.03 * 10);
   assert.ok(approx(getPps(s), internProd + 80));
 });
 
@@ -114,7 +116,8 @@ test('valor del clic: base, multiplicadores y porcentaje de la producción', () 
   assert.equal(getClickValue(s), 4);
   s.upgrades.push('buttonTraining');
   s.buildings.intern = 100;
-  assert.ok(approx(getClickValue(s), 4 + 100 * 0.01));
+  // 100 becarios: hito de +3 % de producción total (afecta también al clic base).
+  assert.ok(approx(getClickValue(s), 4 * 1.03 + 100 * 1.03 * 0.01));
 });
 
 test('clic crítico multiplica por CRIT_MULT', () => {
@@ -210,4 +213,26 @@ test('formato de números en español', () => {
   setNotation('short');
   assert.equal(formatInteger(1234567), '1.234.567');
   assert.equal(formatDuration(3725), '1 h 2 min');
+});
+
+test('hitos de edificios: se activan por cantidad y mejoran OTROS edificios', async () => {
+  const { getReachedMilestones, getNextMilestone } = await import('../../js/core/economy.js');
+  const s = makeState({ buildings: { printer: 10, intern: 9 } });
+  const base = getPps(s);
+  s.buildings.intern = 10; // hito 10 de becarios: impresoras +15 %
+  const printerProd = 10 * 0.2 * 1.15;
+  assert.ok(approx(getPps(s), printerProd + 10));
+  assert.ok(getPps(s) > base);
+  assert.equal(getReachedMilestones(s, 'intern').length, 1);
+  assert.equal(getNextMilestone(s, 'intern').count, 25);
+  s.buildings.intern = 0;
+  assert.equal(getReachedMilestones(s, 'intern').length, 0);
+});
+
+test('los niveles 7–12 dan ventajas permanentes', () => {
+  const s = makeState({ buildings: { intern: 1 }, departments: ['exploitation', 'hellHR', 'multinational', 'adminGod', 'board'] });
+  const before = getPps(s);
+  s.unlockedDepartments.push('timeOffice', 'quantumBureau', 'altReality', 'voidHQ', 'primordialBoard', 'endOfTime');
+  assert.ok(approx(getPps(s), before * 2));
+  assert.equal(getModifiers(s).offlineHours, 16);
 });

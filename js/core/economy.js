@@ -40,14 +40,18 @@
 //   pps             = Σ prodEdificio(b) × multGlobal
 //   clic            = (1 + clickFlat) × Π clickMult × multGlobal + pps × Σ clickPps
 //
-// Cada fuente de efectos se recorre UNA vez por cálculo a partir del estado
-// (ids comprados), así que recargar la partida no puede duplicar bonificaciones.
+// Fuentes de efectos: mejoras, talentos, ventajas del Consejo, logros, efectos
+// temporales, ventajas permanentes de los niveles desbloqueados y HITOS de los
+// edificios (10/25/50/100 unidades, ver buildings.data.js).
+// Cada fuente se recorre UNA vez por cálculo a partir del estado (ids y
+// cantidades), así que recargar la partida no puede duplicar bonificaciones.
 
 import { BUILDINGS, BUILDING_IDS, BUILDINGS_BY_ID } from '../config/buildings.data.js';
 import { UPGRADES_BY_ID } from '../config/upgrades.data.js';
 import { TALENTS_BY_ID } from '../config/talents.data.js';
 import { ACHIEVEMENTS_BY_ID, ACHIEVEMENT_GLOBAL_BONUS } from '../config/achievements.data.js';
 import { BOARD_PERKS_BY_ID, SHARE_GLOBAL_BONUS } from '../config/board.data.js';
+import { DEPARTMENTS_BY_ID } from '../config/departments.data.js';
 import { totalBuildings } from './state.js';
 
 export const CRIT_MULT = 10;
@@ -133,12 +137,40 @@ export function applyEffect(mods, effect) {
   }
 }
 
+/** Hitos alcanzados por un edificio (según su cantidad actual). */
+export function getReachedMilestones(state, id) {
+  const def = BUILDINGS_BY_ID[id];
+  const count = state.buildings[id] || 0;
+  return def?.milestones?.filter((m) => count >= m.count) ?? [];
+}
+
+/** Siguiente hito de un edificio (o null si los tiene todos). */
+export function getNextMilestone(state, id) {
+  const def = BUILDINGS_BY_ID[id];
+  const count = state.buildings[id] || 0;
+  return def?.milestones?.find((m) => count < m.count) ?? null;
+}
+
+/** Firma compacta de los hitos alcanzados (para la caché de modificadores). */
+function milestoneSignature(state) {
+  let sig = '';
+  for (const b of BUILDINGS) {
+    const count = state.buildings[b.id] || 0;
+    let reached = 0;
+    for (const m of b.milestones ?? []) if (count >= m.count) reached += 1;
+    sig += reached;
+  }
+  return sig;
+}
+
 function modifiersKey(state, includeTemp) {
   const temp = includeTemp ? state.temp.effects.map((e) => e.id).join(',') : '-';
   return [
     state.upgrades.join(','),
     state.talents.join(','),
     state.board.join(','),
+    state.unlockedDepartments.length,
+    milestoneSignature(state),
     state.resources.totalSharesEarned,
     Object.keys(state.achievements).length,
     state.resources.totalInfluenceEarned,
@@ -165,6 +197,15 @@ export function getModifiers(state, { includeTemp = true } = {}) {
   for (const id of state.talents) {
     const t = TALENTS_BY_ID[id];
     if (t) t.effects.forEach((e) => applyEffect(mods, e));
+  }
+  // Ventajas permanentes de los niveles desbloqueados.
+  for (const id of state.unlockedDepartments) {
+    DEPARTMENTS_BY_ID[id]?.effects?.forEach((e) => applyEffect(mods, e));
+  }
+  // Hitos por cantidad de cada edificio.
+  for (const b of BUILDINGS) {
+    const count = state.buildings[b.id] || 0;
+    for (const m of b.milestones ?? []) if (count >= m.count) m.effects.forEach((e) => applyEffect(mods, e));
   }
   for (const id of state.board) {
     const perk = BOARD_PERKS_BY_ID[id];
