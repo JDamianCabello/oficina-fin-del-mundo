@@ -434,6 +434,24 @@
   box-shadow: inset 0 0 0 1px #ff4fd844;
 }
 
+.upgrade--final {
+  border-left-color: var(--color-yellow);
+  box-shadow: inset 0 0 0 2px #ffd16655, var(--glow-yellow);
+}
+
+.upgrade--final .upgrade__cat {
+  color: var(--color-yellow);
+  font-weight: 700;
+}
+
+.upgrade--locked .upgrade__name {
+  color: var(--color-text-2);
+}
+
+.upgrade--final .objective__reqs {
+  grid-column: 1 / -1;
+}
+
 .upgrade__cat {
   font-size: var(--fs-xs);
   color: var(--color-yellow);
